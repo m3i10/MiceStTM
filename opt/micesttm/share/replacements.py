@@ -1,0 +1,20 @@
+tts = {
+'—': '-',
+'€': 'Euro',
+'Nr': 'Nummer',
+'usw.': 'und so weiter',
+'$': '§',
+'Tel': 'Telefonnummer',
+'d.h.': 'daher',
+'Stck': 'Stückzahl',
+'.de': ' punkt d eeee',
+'www.': 'w w w punkt ',
+'BLZ': 'Bankleitzahl',
+'Kto.': 'Konto',
+'Rech.': 'Rechnungs ',
+'str.': 'straße',
+'z.B.': 'zum Beispiel',
+'/': 'Schrägstrich',
+'.py': 'punkt pei',
+'Dr.': 'Doktor'	
+}

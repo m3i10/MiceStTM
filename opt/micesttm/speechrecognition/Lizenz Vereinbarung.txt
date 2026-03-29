@@ -1,0 +1,14 @@
+Lizenzvereinbarung
+
+Dieses Programm und die dazugehörigen Plugins dürfen verbreitet und verändert werden. Bei jeder Art von Veränderung sind die folgenden Bedingungen zu beachten:
+
+1.    Urhebernennung: Bei jeglicher Veränderung des Originals muss auf das Originalprogramm verwiesen und der Name des ursprünglichen Autors genannt werden.
+
+2.    Verbreitung: Das Programm und seine Plugins dürfen in unveränderter oder veränderter Form veröffentlicht und verteilt werden, solange die oben genannten Bedingungen eingehalten werden.
+
+3.    Haftungsausschluss: Der Autor des Originals übernimmt keine Haftung für etwaige Schäden oder Probleme, die aus der Verwendung dieser Software oder ihrer Modifikationen entstehen.
+
+4.    Keine zusätzliche Einschränkungen: Es dürfen keine zusätzlichen Einschränkungen auferlegt werden, die die Bedingungen dieser Vereinbarung widersprechen.
+
+Diese Bedingungen gelten für alle Versionen des Programms und seiner Plugins.
+

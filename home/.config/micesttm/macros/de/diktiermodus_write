@@ -1,0 +1,135 @@
+Version 0.2 / Nov. 24
+---------------------
+
+- um Briefe Texte neue Absätze zu tätigen
+
+--------------------
+trigger: (wort|text.*|taste.*) lösch.*
+terminal_command: xdotool key BackSpace
+intern_command: repeat
+tts:
+--------------------
+trigger: (taste|mach.*) rückgängig.*
+terminal_command: xdotool key ctrl+z
+intern_command: repeat
+tts:
+--------------------
+trigger: (taste|mach.*) wiederholen.*
+terminal_command: xdotool key ctrl+y
+intern_command: repeat
+tts:
+--------------------
+trigger: nach recht.* markiere.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts: 
+--------------------
+trigger: nach link.* markiere.*
+terminal_command: xdotool key shift+Left
+intern_command: repeat
+tts:
+--------------------
+trigger: markiere.* nach recht.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts:
+--------------------
+trigger: markier.* nach link.*
+terminal_command: xdotool key --delay 20 shift+Left
+intern_command: 
+tts:
+--------------------
+trigger: markier.* nach oben
+terminal_command: xdotool key shift+Up
+intern_command: repeat
+tts:
+--------------------
+trigger: markier.* nach unten
+terminal_command: xdotool key shift+Down
+intern_command: repeat
+tts:
+--------------------
+trigger: markier.* (bis|zum) .*anfang.*
+terminal_command: xdotool key shift+110
+intern_command: 
+tts:
+--------------------
+trigger: markier.* (bis|zum) .*ende.*
+terminal_command: xdotool key shift+115
+intern_command: 
+tts:
+--------------------
+trigger: (zeilen anfang)
+terminal_command: xdotool key 110
+intern_command: 
+tts:
+--------------------
+trigger: spring.* zeilenende
+terminal_command: xdotool key 115
+intern_command: 
+tts:
+--------------------
+trigger: taste entfernen
+terminal_command: xdotool key 119
+intern_command: 
+tts:
+--------------------
+trigger: (taste.*) nach oben
+terminal_command: xdotool key Up
+intern_command: repeat
+tts:
+--------------------
+trigger: (taste.*) nach unten
+terminal_command: xdotool key Down
+intern_command: repeat
+tts:
+--------------------
+trigger: (taste.*) nach link.*
+terminal_command: xdotool key Left
+intern_command: repeat
+tts:
+--------------------
+trigger: (taste.*|nach) recht.* 
+terminal_command: xdotool key Right
+intern_command: repeat
+tts:
+--------------------
+trigger: (escape.*)
+terminal_command: xdotool key Escape
+intern_command: 
+tts:
+
+--------------------
+trigger: alles markieren
+terminal_command: xdotool key ctrl+a
+intern_command: 
+tts:
+--------------------
+trigger: inhalt kopieren
+terminal_command: xdotool key ctrl+c
+intern_command: 
+tts: Markierungen in die Zwischenablage kopiert
+--------------------
+trigger: inhalt einfügen
+terminal_command: xdotool key ctrl+v
+intern_command: repeat
+tts: habe inhalt aus der Zwischenablage eingefügt
+--------------------
+trigger: alles kopieren
+terminal_command: xdotool key ctrl+a key ctrl+c
+intern_command: 
+tts:
+--------------------
+trigger: suche nach
+terminal_command: xdotool key ctrl+f type '{last_spoken_text}'
+intern_command:
+tts:
+
+--------------------
+trigger: springe.* (.*satzende.*)
+terminal_command: xdotool key ctrl+f type '.' ; xdotool key Return
+intern_command:
+tts:
+--------------------
+
+

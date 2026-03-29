@@ -1,0 +1,79 @@
+Version 0.1 Nov 24
+------------------
+
+trigger: .* nach.* link.*
+terminal_command: xdotool mousemove_relative -- -{last_spoken_number} 0
+intern_command:
+tts:
+
+trigger: nach.* recht.*
+terminal_command: xdotool mousemove_relative {last_spoken_number} 0
+intern_command:
+tts:
+
+trigger: .* nach.* oben.*
+terminal_command: xdotool mousemove_relative -- 0 -{last_spoken_number}
+intern_command:
+tts:
+
+trigger: nach unten
+terminal_command: xdotool mousemove_relative 0 {last_spoken_number} 
+intern_command:
+tts:
+
+
+
+control: abbruch
+trigger: (abbr.*|beend.*)
+terminal_command: xdotool key Escape
+intern_command: macro
+tts: Bildschirmgitter wurde abgewählt
+--------------------
+control: eins
+trigger: ein.*
+terminal_command: xdotool key 1
+intern_command:
+tts:
+--------------------
+control: zwei
+trigger: zwei
+terminal_command: xdotool key 2
+intern_command:
+tts:
+--------------------
+control: drei
+trigger: drei
+terminal_command: xdotool key 3
+intern_command:
+tts:
+--------------------
+control: vier
+trigger: vier
+terminal_command: xdotool key 4
+intern_command:
+tts:
+--------------------
+
+trigger: doppel.*
+terminal_command: xdotool key Escape click 1 sleep 0.1 click 1 
+intern_command: macro
+tts:
+
+
+trigger: links.*
+terminal_command: xdotool key Escape click 1 
+intern_command: macro
+tts:
+
+
+trigger: rechts.*
+terminal_command: xdotool key Escape click 3 
+intern_command: macro
+tts:
+
+trigger: mittel.* klick.*
+terminal_command: xdotool key Escape click 2 
+intern_command: macro
+tts:
+
+

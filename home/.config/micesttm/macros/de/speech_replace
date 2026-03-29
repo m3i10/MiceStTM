@@ -1,0 +1,152 @@
+# Kommandos die selten richtig verstanden werden nach(->) übersetzen
+# Kommentare nach #
+
+
+# Hier die Erklärung der internen Variablen wie {space} {delspace} und {->}...
+# {space}: um ein Leerzeichen einzufügen
+# {delspace}: kein Leerzeichen schreiben. Bzw. das letzte Leerzeichen entfernen
+# {->}: das erstellt (->) selbst.
+
+# \n: neue Zeile
+# {nopuncture}: keine Satzzeichen schreiben
+
+# allgemein
+wandeln zu(->){->}{nopuncture}
+starrte(->)starte
+startet(->)starte
+staate(->)starte
+starter(->)starte
+state(->)starte
+
+# Text
+#
+
+lautstärker(->)lautstärke
+laut stärker(->)lautstärke
+
+Komma setzen(->){delspace},
+Komma zeichen(->){delspace},
+Punkt setzen(->){delspace}.
+pumpt setzen(->){delspace}.
+Punkt Zeichen(->){delspace}.
+Doppelpunkt(->){delspace}:
+kommas Zeichen(->){delspace},
+Komma(->){delspace},
+
+Punkt(->).
+Www.(->)www.{delspace}
+www.(->)www.{delspace}
+World wide Web(->)www{delspace}
+D e(->){delspace}de
+D e,(->){delspace}de,
+D e?(->){delspace}de?
+D e.(->){delspace}de.
+
+eine Adresse(->)meine adresse
+meine Adresse(->)Max Mustermann\nMustermannstraße 1\n44332 Bottrup\n{nopuncture}{delspace}
+meiner Telefonnummer(->)meine Telefonnummer
+meine Telefonnummer(->)0123456789{nopuncture}
+neue Zeile(->)\n{delspace}
+Leerzeichen(->){space}
+
+schreibe ein(->)schreibe eins
+schreibe.(->)schreibe .
+Semikolon(->){delspace};
+Bindestrich(->)-
+Unterstrich(->)_
+Fragezeichen(->){delspace}?
+Ausrufezeichen(->){delspace}!
+Dollarzeichen(->)$
+Backslash(->)\
+Schrägstrich(->)/
+und Zeichen(->) &
+Prozent Zeichen(->) %
+Prozentzeichen(->) %
+Anführungsstriche(->)
+Klammern auf(->)klammer auf
+Klammern zu(->)klammer zu
+geschweifte Klammer auf(->){
+geschweifte Klammer zu(->)}
+eckige Klammer auf(->)[
+eckige Klammer zu(->)]
+Klammer auf(->)(
+Klammer zu(->))
+oder zeichen(->)|
+
+# libreofice
+#
+Libreoffice Springer zu(->)libreoffice springe zu
+
+# Tasten
+#
+taste s cape(->)escape
+taste s k(->)escape
+
+
+
+Konrad Katalog(->)www.conrad.de{nopuncture}
+Conrad Katalog(->)www.conrad.de{nopuncture}
+
+#Buchstabieren
+kleines a(->)a{delspace}
+kleines b(->)b{delspace}
+kleines c(->)c{delspace}
+kleines d(->)d{delspace}
+kleines es(->)s{delspace}
+kleines e(->)e{delspace}
+kleines f(->)f{delspace}
+kleines g(->)g{delspace}
+kleines h(->)h{delspace}
+kleines i(->)i{delspace}
+kleines j(->)j{delspace}
+kleines k(->)k{delspace}
+kleines l(->)l{delspace}
+kleines m(->)m{delspace}
+kleines n(->)n{delspace}
+kleines o(->)o{delspace}
+kleines p(->)p{delspace}
+kleines q(->)q{delspace}
+kleines r(->)r{delspace}
+kleines s(->)s{delspace}
+kleines t(->)t{delspace}
+kleines u(->)u{delspace}
+kleines v(->)v{delspace}
+kleines w(->)w{delspace}
+kleines x(->)x{delspace}
+kleines y(->)y{delspace}
+kleines z(->)z{delspace}
+kleines ö(->)ö{delspace}
+kleines ä(->)ä{delspace}
+kleines ü(->)ü{delspace}
+
+großes a(->)A{delspace}
+großes b(->)B{delspace}
+großes c(->)C{delspace}
+großes d(->)D{delspace}
+großes e(->)E{delspace}
+großes f(->)F{delspace}
+großes g(->)G{delspace}
+großes h(->)H{delspace}
+großes i(->)I{delspace}
+großes j(->)J{delspace}
+großes k(->)K{delspace}
+großes l(->)L{delspace}
+großes m(->)M{delspace}
+großes n(->)N{delspace}
+großes o(->)O{delspace}
+großes p(->)P{delspace}
+großes q(->)Q{delspace}
+großes r(->)R{delspace}
+großes s(->)S{delspace}
+großes t(->)T{delspace}
+großes u(->)U{delspace}
+großes v(->)V{delspace}
+großes w(->)W{delspace}
+großes x(->)X{delspace}
+großes y(->)Y{delspace}
+großes z(->)Z{delspace}
+großes ö(->)Ö{delspace}
+großes ä(->)Ä{delspace}
+großes ü(->)Ü{delspace}
+#s z(->)ß
+

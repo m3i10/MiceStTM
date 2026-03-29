@@ -1,0 +1,4 @@
+Super+Q = read highlighted text
+Super+A = read text under the mouse pointer
+Super+Y = screenshot into the monitored directory and read aloud. Only works with file-watch-purge.py
+

@@ -1,0 +1,1625 @@
+Das Macro-System (Konfiguration)
+
+Das Herzstück der Steuerung ist die Macro-Datei. Sie definiert, welche Sprachbefehle welche Aktionen auslösen. Das System ist auf maximale Flexibilität ausgelegt: Bei Syntaxfehlern innerhalb der Trigger gibt das System zur Warnung 2 aufeinanderfolgende Pings aus.
+Der Verarbeitungs-Prozess
+Bevor ein Befehl interpretiert wird, durchläuft er die Datei speech-replace.de. Hier werden Wörter in Zeichen umgewandelt (z. B. wird das gesprochene Wort „Punkt“ zu dem Zeichen „.“ konvertiert).
+Aufbau eines Macros
+Ein Befehl besteht aus vier zentralen Sektionen:
+
+   1. Trigger (Aktivierungswort):
+   * Groß- und Kleinschreibung wird ignoriert.
+      * Platzhalter: Nutzen Sie .* als Wildcard (z. B. .*icht.* einschalten, falls das System „Licht“ falsch als „nicht“ versteht).
+      * Gruppierung: Mehrere Wörter können mit | (Oder) in Klammern zusammengefasst werden: (Licht|Lampe) (an|einschalten).
+   2. Terminal_Command:
+   * Hier werden Standard-Terminalbefehle oder Skripte eingetragen.
+      * Parameter wie gesprochene Zahlen können direkt übergeben werden (z. B. zur Temperatursteuerung via MQTT).
+   3. Intern_Command:
+   * spell: Aktiviert das Buchstabieren (entfernt automatisch Leerzeichen).
+      * repeat: Wiederholt Befehle oder Skripte mehrfach.
+      * calc: Führt mathematische Berechnungen mit erkannten Zahlen durch.
+      * puncture: Aktiviert die automatische Zeichensetzung (kann via {nopuncture} in der speech-replace.de priorisiert aufgehoben werden).
+   4. TTS (Sprachausgabe):
+   * Legt fest, was der PC nach Ausführung des Befehls antwortet. Hier können Variablen zur Bestätigung genutzt werden.
+
+Spezialmodi: Direkt & Diktieren
+
+* Direktmodus (Ohne Wake-Word): Wenn im intern_command eine andere Datei (z. B. bildschirmgitter.de) angegeben ist, wechselt MiceSt in diesen Modus. Befehle werden nun direkt ohne das Wort „Computer“ ausgeführt. Der Modus endet, sobald das Wake-Word erneut ausgesprochen wird.
+* Diktiermodus: Wird eine Datei mit der Endung -write.de (z. B. diktiermodus-write.de) aufgerufen, wird alles Gesprochene direkt als Text geschrieben. Hinweis: Aktuell ist hier nur Kleinschreibung möglich.
+
+Interne Variablen
+
+* {last_spoken_text}: Übergibt alles, was nach dem Trigger gesagt wurde (ideal für „Schreibe den Text...“).
+* {last_spoken_number}: Extrahiert die letzte Zahl aus einem Satz (Ganz- oder Kommazahlen) und wandelt sie in einen numerischen Wert um.
+* {last_spoken_numeral}: Erfasst einzelne Ziffern von 0 bis 9 (wichtig für den Diktiermodus oder PIN-Eingaben).
+
+Wichtige Praxistipps
+
+* Hierarchie: Kurze Befehle müssen immer hinter längeren, ähnlichen Befehlen stehen (z. B. 1. „Fenster jetzt schließen“, 2. „Fenster schließen“).
+* Timing: Während ein Befehl ausgeführt wird, werden keine neuen Trigger akzeptiert. Wenn das System eine Eingabe nicht versteht, bleibt das Fenster für 10 Sekunden aktiv, bevor das Wake-Word erneut nötig ist.
+* Verwaltung: Nutzen Sie das Terminal-Tool edit-macro.py, um Trigger komfortabel zu bearbeiten.
+
+Beispiel-Eintrag:
+
+category: Smart Home
+comment: Heizungsteuerung Wohnzimmer
+trigger: Wohnzimmertemp.* auf
+terminal_command: mosquitto_pub -h x.x.x.x -m 'set' -t 'home/klima/{last_spoken_number}'
+tts: Das Wohnzimmer wird auf {last_spoken_number} Grad geheizt.
+
+
+___________________________________________________________________________________________________________________________________________________________________________________________________
+
+
+category: Tasten Befehle
+comment: 
+trigger: schreibe.*
+terminal_command: xdotool type --delay 20 '{last_spoken_text}'
+intern_command: puncture
+tts: 
+
+
+jetzt gehts los, ab hier sind schon einige Sprachkommandos fertig:
+
+- jede Ziffer die in number-replace.de steht wird ausgeschrieben!
+category: Tasten Befehle
+comment: 
+trigger: schreib.* ziff.*
+terminal_command: xdotool type --delay 100 {last_spoken_numeral}
+intern_command:
+tts:
+
+- alle Zahlen auch Zahlen die nicht in number-replace.de stehen werden geschrieben
+category: Tasten Befehle
+comment: 
+trigger: schreib.* zahl.*
+terminal_command: xdotool type --delay 100 {last_spoken_number}
+intern_command:
+tts:
+
+category: Hilfe
+comment: 
+trigger: Allgemeine Hilfe
+terminal_command: libreoffice --view -o "/opt/micesttm/Help/Handbuch-Manuel-de.odt"
+intern_command: 
+tts: 
+--------------------------
+
+
+Brief Verarbeitung 4 Befehle
+----------------------------
+- scannen
+- vorlesen
+- Verzeichnis anzeigen
+- Brief anzeigen
+
+
+category: Brief
+comment: 
+trigger: Hilfe (.*rief.*|scan.*)
+terminal_command: 
+intern_command: 
+tts: Es gibt 4 Optionen.  1. Sage, Brief lesen oder scannen und der Brief wird eingescannt und vorgelesen.  2. Sage, Brief Verzeichnis anzeigen und der Dateimanager mit den Dateien wird angezeigt.  3. Sage, Brief nochmal vorlesen und der Brieftext wird nochmal vorgelesen ohne Scan.  4. Sage, Brief oder Scan anzeigen und das invertierte Bild wird angezeigt.
+
+category: Brief
+comment: Das Verzeichnis mit dem Dateimanager anzeigen indem sich der Brief befindet
+trigger: (.*rief ver.*|scan.* ver.*) .*zeig.*
+terminal_command: nemo $HOME/MiceStTM/letter
+intern_command: 
+tts: Brief Verzeichnis wurde mit dem Dateimanager geöffnet
+
+category: Brief
+comment: Brief Sprachdatei nochmal vorlesen
+trigger: (scan.*|.*rief.*) nochmal vorle.*
+terminal_command: xterm -e mplayer $HOME/MiceStTM/letter/text.txt.wav
+intern_command: 
+tts: 
+
+- invertierten Brief/Scan anzeigen
+category: Brief
+comment: 
+trigger: (scan.*|.*rief.*) (anz.*|zeig.*)
+terminal_command: eog $HOME/MiceStTM/letter/letter_invert_and_rotated.png -fg
+intern_command: 
+tts: "der Brief, wird mit dem Bildbetrachter in Vollbild angezeigt. Die Größe kann mit dem Mausrad oder Plus und Minus verändert werden.   Die Position mit Maus anpacken oder Steuerung und Pfeiltasten! Drückst du nur die Pfeiltaste, dann wechselst du automatisch zum nächsten   Dokument!"
+
+category: Brief
+comment: 
+trigger: .*rief.* (.*les.*|scan.*)
+terminal_command: python3 /opt/micesttm/read-aloud/scanner.py
+intern_command: 
+tts: der Brief aus dem Scanner wird vorgelesen. Bitte Warten!
+
+--------------------------
+
+
+Spracherkennung neu starten oder beenden
+----------------------------------------
+
+category: Spracherkennung
+comment: 
+trigger: sprach.* (been.*|aus.*)
+terminal_command: sleep 5 && /opt/micesttm/speechrecognition/mice_sttm.py
+intern_command:
+tts: Die Spracherkennung wird beendet
+
+category: Spracherkennung
+comment: 
+trigger: sprach.* (neu.*|star.*)
+terminal_command: /opt/micesttm/speechrecognition/mice-restart.sh
+intern_command: 
+tts: die Spracherkennung wird neu gestartet
+--------------------------
+
+category: System Befehle
+comment: 
+trigger: (st.*|ausf.*|führ.*) (Dateimanager.*|nemo.*)
+terminal_command: nemo
+intern_command:
+tts:
+--------------------------
+
+
+Beispiel für Teamspeak
+----------------------
+category: Programme
+comment: 
+trigger: Team.* speak.* sta.*
+terminal_command: $HOME/Teamspeak/TeamSpeak
+intern_command:
+tts: Teamspeak wird gestartet
+--------------------------
+
+
+um MX Linux von USB auf HD zu Installieren
+--------------------------
+
+category: System Befehle
+comment: 
+trigger: Herunterfahr.*
+terminal_command: 
+intern_command:
+tts: drücke die Windows Taste und unten links den roten Knopf. Drücke die Enter Taste oder sage Taste Enter
+--------------------------
+
+
+Mikrofon Einstellungen
+
+category: Mikrofon
+comment: 
+trigger: mikro.* auto.*
+terminal_command: /opt/micesttm/speechrecognition/autogain.sh & cinnamon-settings sound -t 1 & (sleep 5  && pkill -f cinnamon-settings)
+intern_command: 
+tts: Mikrofon auto Gäin wurde geschaltet, ein weiterer aufruf schaltet dies ein oder aus
+
+category: Mikrofon
+comment: 
+trigger: mikro.* einstell.*
+terminal_command: cinnamon-settings sound -t 1
+intern_command:
+tts: Mikrofon Einstellungsmenü wurde gestartet
+--------------------
+
+Return/Enter Taste drücken
+--------------------------
+- um Briefe Texte neue Absätze zu tätigen
+
+category: Tasten Befehle
+comment: 
+trigger: (neuer|taste|mail|brief) (absenden|enter|absatz)
+terminal_command: xdotool key Return
+intern_command: repeat
+tts: 
+--------------------
+
+Interne Funktion um Zahlen bis eine Stelle hinterm Komma zu berechnen
+---------------------------------------------------------------------
+
+category: Rechnen
+comment: 
+trigger: (was|rechn.*|wiev.*|viel) (ist|zahl.*)
+terminal_command: 
+intern_command: calc
+tts: das Ergebnis ist {last_spoken_number}
+--------------------
+
+
+Ein Wetter Beispiel für xxxx
+------------------------------
+category: Internet
+comment: 
+trigger: .*ie.* wetter.* am
+terminal_command: curl -s https://www.ndr.de/wetter?locatio | html2text -style compact -utf8 | grep {last_spoken_text} -A 5 | grep -v Temperatur | sed 's/\//die niedrigste/g' | sed 's/kmdie niedrigsteh/k m h. der Wind weht von/g' | sed 's/O/Ost/g' | sed 's/N/Nord/g' | sed 's/W/West/g' | sed 's/Westind/Wind/g' | sed 's/°/°!/g' | sed 's/%/%!/g' | espeak -v german
+intern_command: 
+tts: 
+
+category: Internet
+comment: 
+trigger: (.*ie) (wir.*) (.*tter.*)
+terminal_command: curl -s https://www.ndr.de/wetter?location=xxxxx | html2text -style compact -utf8 | grep Wettervorhersage -A 4 | grep -v "*" | espeak -v german
+intern_command: 
+tts: 
+
+category: Internet
+comment: 
+trigger: .*wett.* (mit|in) firefox
+terminal_command: firefox https://www.wetter.com/deutschland/xxxx/xxxx.html
+intern_command: 
+tts: Firefox mit Wetter.com wurde mit der Region xxxx gestartet.
+--------------------
+
+
+Webcams direkt mit Firefox starten
+----------------------------------
+category: Webcams
+comment: 
+trigger: (webcam.*) münster
+terminal_command: firefox https://weltcam.com/647-dacher-und-kirchen-von-munster-deutschland.html
+intern_command: 
+tts: hier ist die Webcam im Blick auf dem AAsee
+--------------------
+category: Webcams
+comment: 
+trigger: (prinzipal.*) (.*münster.*)
+terminal_command: firefox https://www.stadt-muenster.de/medien/webcams/prinzipalmarkt
+intern_command: 
+tts: hier ist die webcam vom prinzipialmarkt münster
+--------------------
+
+
+Tasmota oder MQTT Geräte bedienen
+---------------------------------
+category: Bluetti 200MAX
+comment: Bluetti AC200MAX schalten
+trigger: (wechsel.*|.*strom.*|wechselrichter|.*richter) (ein.*|an.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -t Bluetti/Schalten -m ON
+intern_command: 
+tts: der Wechselrichter wurde eingeschaltet!
+
+category: Bluetti 200MAX
+comment: 
+trigger: (wechselrichter.*|strom) aus.*
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -t Bluetti/Schalten -m OFF
+intern_command: 
+tts: der Wechselrichter wurde ausgeschaltet!
+
+category: Hilfe
+comment: 
+trigger: (hilfe) (kein.*) (strom)
+terminal_command: 
+intern_command: 
+tts: du musst den wechselrichter einschalten. Sage wechselrichter einschalten
+--------------------
+- Shelly
+category: Shelly
+comment: 
+trigger: akt.* .*verbrauch.* (.*zeige.*|.*ie.*)
+terminal_command: firefox xxx.xxx.xxx.xx
+intern_command: 
+tts: hier ist der aktuelle Verbrauch
+
+Deckenlampe
+-----------
+category: Tasmota Lampe
+comment: Tasmota Gerät schalten
+trigger: (tischlampe|stehlampe) (an.*|ein.*)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+on
+intern_command: 
+tts: Die Stehlampe wurde eingeschaltet!
+--------------------
+category: Tasmota Lampe
+comment: Tasmota Gerät schalten
+trigger: (tischlampe|stehlampe) (aus.*|ab.*)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+off
+intern_command: 
+tts: Die Stehlampe wurde ausgeschaltet!
+
+
+category: Shelly Lampe
+comment: Shelly Gerät schalten
+trigger: (Decke.*|licht.*|.*lamp.*) für (ein.*|an.*)
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=on&timer={last_spoken_number}"
+intern_command: 
+tts: die Deckenlampe wurde für {last_spoken_number} Sekunden eingeschaltet
+
+category: Shelly Lampe
+comment: Shelly Gerät schalten
+trigger: (Decke.*|.*licht.*|.*lamp.*) (ein.*|an.*)
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=on"
+intern_command: 
+tts: die Deckenlampe wurde eingeschaltet
+
+category: Shelly Lampe
+comment: Shelly Gerät schalten
+trigger: (Decke.*|.*licht.*|.*lamp.*) aus.*
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=off"
+intern_command: 
+tts: die Deckenlampe wurde ausgeschaltet
+
+Außenbeleuchtung
+----------------
+category: Shelly Lampe
+comment: Shelly Gerät schalten
+trigger: (Außenbel.*|Außen bel.*) für (ein.*|an.*)
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=on&timer={last_spoken_number}"
+intern_command: 
+tts: die Außenbeleuchtung wurde für {last_spoken_number} Sekunden eingeschaltet
+
+category: Shelly Lampe
+comment: Shelly Gerät schalten
+trigger: (Außenbel.*|Außen bel.*) (ein.*|an.*)
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=on"
+intern_command: 
+tts: die Außenbeleuchtung wurde eingeschaltet
+
+category: Shelly Lampe
+comment: Shelly Gerät schalten
+trigger: (Außenbel.*|Außen bel.*) (aus.*)
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=off"
+intern_command: 
+tts: die Außenbeleuchtung wurde ausgeschaltet
+--------------------
+
+category: Fernseher
+comment: Tasmota Gerät schalten
+trigger: (ferns.*|flimmerkiste) (Steckdose|Strom|Ansch.*) aus.*
+terminal_command: curl "http://xxx.xxx.xxx.xx/cm?cmnd=Power+off"
+intern_command: 
+tts: die Fernseherschteckdose wurde ausgeschaltet
+--------------------
+
+Beispiel:
+- erst Strom einschalten
+category: Fernseher
+comment: Tasmota Gerät schalten
+trigger: (fernsehe.*|flimmerkiste) Steckdose (ein.*|an.*)
+terminal_command: curl -m 2 "http://xxx.xxx.xxx.xx/cm?cmnd=Power+on"
+intern_command:
+tts: der Fernseher wurde eingeschaltet
+
+
+- Fernseher per Broadlink IR sender schalten
+ die Befehle dazu befinden sich zum Beispiel auf einen Rasperry Zero
+ 
+category: Fernseher
+comment: Fernseher mit Fernbedienung schalten
+trigger: ferns.* (ein.*|aus.*)
+terminal_command: curl -m 2 "http://xxx.xxx.xxx.xx/cm?cmnd=Power+on" && mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/power'
+intern_command:
+tts: der Fernseher wurde geschaltet
+
+
+category: Fernseher
+comment: Fernseher mit Fernbedienung schalten
+trigger: (amazon|prime) (ein.*|an.*|spie.*|star.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/prime'
+intern_command: 
+tts: Amazon Preim wird eingeschaltet
+
+category: Fernseher
+comment: Fernseher mit Fernbedienung schalten
+trigger: (ferns.*|flimmerkiste) (aus|ausschalten|ausmachen)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/power'
+intern_command: 
+tts: ok
+
+--------------------
+
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: (.*platte|kochen|herd) (aus.*|abs.*)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+off
+intern_command: 
+tts: die Kochplatte wurde ausgeschaltet
+--------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: (.*platte|kochen|herd) (ein.*|an.*|will|möchte|einschalten)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+on
+intern_command: 
+tts: die Kochplatte wurde eingeschaltet
+--------------------
+
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: internet (an.*|ein.*)
+terminal_command: curl http://xxx.xxx.xxx.xxx/relay/0?turn=on
+intern_command: 
+tts: das Internet wurde eingeschaltet!
+--------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: internet aus.*
+terminal_command: curl http://xxx.xxx.xxx.xxx/relay/0?turn=off
+intern_command: 
+tts: das Internet wurde ausgeschaltet!
+--------------------
+category: Hilfe
+comment: Hilfe Wohnzimmer Temperatur
+trigger: (es|mir) ist kalt
+terminal_command:
+intern_command:
+tts: Sage zum Beispiel: Wohnzimmertemperatur auf 15 Grad. Schaue, ob der Kessel eingeschaltet ist. Oder Schalte die Klimaanlage an in dem du Klimaanlage einschalten sagst
+--------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: klima.* (an.*|ein.*)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+on
+intern_command: 
+tts: die Klimaanlage hat jetzt Strom!
+--------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: klima.* (strom.*|steckd.*) aus.*
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+off
+intern_command: 
+tts: die Klimaanlage wurde vom Netz getrennt!
+--------------------
+category: Tasmota
+comment: Mehrere Geräta gleichzeitig ausschalten
+trigger: ich gehe.*
+terminal_command: curl http://xxx.xxx.xxx.xxx/relay/0?turn=off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off
+intern_command: 
+tts: Wohnzimmerlicht, Stehlampe, Kochplatte und der Fernseher wurden ausgeschaltet! Bis bald!
+--------------------
+category: Tasmota
+comment: mehrere Geräte gleichzeitig ausschalten
+trigger: alle.* aus.*
+terminal_command: curl http://xxx.xxx.xxx.xxx/relay/0?turn=off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off
+intern_command: 
+tts: Wohnzimmerlicht, Stehlampe, Kochplatte und der Fernseher wurden ausgeschaltet!
+--------------------
+
+
+Mit einem ESP EASY kann man Heizungsthermostate realisieren,
+diesen kann man einfach per Netzwerk schalten!
+------------------------------------------------------------
+
+category: ESP Easy
+comment: über Espeasy Variablen ansteuern
+trigger: (heizung.*|wohn.*|kessel) auf
+terminal_command: curl xxx.xxx.xxx.22/tools?cmd=taskvalueset,7,1,{last_spoken_number}
+intern_command: 
+tts: Wohnraumtemperatur wurde auf {last_spoken_number} Grad geändert
+--------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: (kessel.*) aus.*
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+off
+intern_command: 
+tts: der Kessel wurde ausgeschaltet!
+--------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: (kessel.*) (ein.*|an.*)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+on
+intern_command: 
+tts: der Kessel wurde eingeschaltet!
+--------------------
+category: Internet
+comment: Web Radio einschalten
+trigger: (spiel.*|start.*|schalt.*) wdr fünf
+terminal_command: xterm -e 'cvlc https://wdr-wdr5-live.icecastssl.wdr.de/wdr/wdr5/live/mp3/128/stream.mp3 --gain 1'
+intern_command: 
+tts: 
+
+category: Klimaanlage
+comment: Klimaanlage über Fernbedienung schalten
+trigger: (Klima.*) (heiz.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/klima/auto/heat/{last_spoken_number}'
+intern_command:
+tts: Wohnzimmer wird auf {last_spoken_number} Grad mit der Klimaanlage geheizt!
+
+category: Klimaanlage
+comment: Klimaanlage über Fernbedienung schalten
+trigger: (wohn.*|zimmer|Klima.*) (auf|kühlen|klimat.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/klima/auto/cool/{last_spoken_number}'
+intern_command:
+tts: Wohnzimmer wird auf {last_spoken_number} Grad klimatisiert
+
+category: Klimaanlage
+comment: Klimaanlage über Fernbedienung schalten
+trigger: (wohn.*|zimmer|Klima.*) (trock.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/klima/auto/dry'
+intern_command: 
+tts: die Klimaanlage steht auf Lufttrocknen
+
+category: Klimaanlage
+comment: Klimaanlage über Fernbedienung schalten
+trigger: klima.* aus.*
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m replay -t broadlink/klima/poweroff
+intern_command: 
+tts: die Klimaanlage wurde ausgeschaltet!
+
+--------------------
+
+
+Internet Radio Beispiel:
+
+category: Musik spielen
+comment: Regen Sounds
+trigger: reg.* (spiel.*|ein.*)
+terminal_command: cvlc /home/xxxxxx/Music/regen.ogg
+intern_command: 
+tts: jo
+
+category: Internet Radio
+comment: Internet Radio Vlc Player abschalten
+trigger: Radio (.*aus.*|stopp.*)
+terminal_command: pkill -f cvlc & pkill aplay
+intern_command: 
+tts: das Radio ist ausgeschaltet
+--------------------
+
+category: Internet Radio
+comment: Internet Radio 1 Live abspielen
+trigger: Radio (spiele|ein.*)
+terminal_command: cvlc https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3
+intern_command: 
+tts: jo
+
+
+Uhrzeit ansagen:
+----------------
+category: Ansagen
+comment: Uhrzeit ansagen
+trigger: (ich|welch.*|wie.*) (werd|Uhr.*|Zeit.*|spät)
+terminal_command: echo es ist `date "+%H Uhr %M"` | espeak -v german
+intern_command: 
+tts: 
+--------------------
+
+
+Lautsprecher einstellen
+-----------------------
+
+category: System Befehle
+comment: Lautstärke einstellen
+trigger: .*stärke.* (auf|prozent) 
+terminal_command: amixer set Master {last_spoken_number}%
+intern_command:
+tts: Okey
+
+category: System Befehle
+comment: Lautsprecher aus
+trigger: (ton|lautsprecher) aus
+terminal_command: pactl- set-sink-mute 0 1
+intern_command: 
+tts: Okey
+
+category: System Befehle
+comment: Lautsprecher an
+trigger: (ton|lautsprecher) an
+terminal_command: pactl- set-sink-mute 0 0
+intern_command: 
+tts: Okey
+--------------------
+category: Programme
+comment: youtube
+trigger: (sta.*|führe.*) youtube
+terminal_command: firefox www.youtube.com
+intern_command: 
+tts: youtube ist gestartet
+--------------------
+category: Programme
+comment: Office
+trigger: (starte|ausführen|führe) libreoffice (.*iter.*)
+terminal_command: libreoffice -writer
+intern_command: 
+tts: libre office wreiter wurde ausgeführt
+--------------------
+
+
+Firefox funtionen per Sprach steuern
+-------------------------------------
+
+category: Programme
+comment: Firefox
+trigger: firefox (anzeig.*|zeige)
+terminal_command: xdotool search "Mozilla Firefox" windowactivate
+intern_command: 
+tts: ok
+
+category: Programme
+comment: 
+trigger: (starte|ausführen|führe) firefox mit
+terminal_command: firefox '{last_spoken_text}'
+intern_command:
+tts:
+
+category: Programme
+comment: 
+trigger: (starte|ausführen|führe) firefox
+terminal_command: firefox '{last_spoken_text}'
+intern_command:
+tts:
+
+category: Firefox steuern
+comment: 
+trigger: firefox neu.* tap
+terminal_command: xdotool key ctrl+t
+intern_command: 
+tts: neuer Firefox Tab wurde angelegt
+
+category: Firefox steuern
+comment: 
+trigger: firefox lesezeich.*
+terminal_command: xdotool key ctrl+d
+intern_command: 
+tts: Bestätigen oder Lesezeichen entfernen?
+
+category: Firefox steuern
+comment: 
+trigger: lesezeich.* entfernen
+terminal_command: xdotool key alt+e
+intern_command: 
+tts: das Lesezeichen wurde entfernt
+
+category: Firefox steuern
+comment: 
+trigger: firefox seite zurück
+terminal_command: xdotool key alt+113
+intern_command: 
+tts: eine Seite zurück
+
+category: Firefox steuern
+comment: 
+trigger: firefox seite vor
+terminal_command: xdotool key alt+114
+intern_command: 
+tts: eine Seite vor
+
+category: Firefox steuern
+comment: 
+trigger: firefox seite neu.* laden
+terminal_command: xdotool key F5
+intern_command: 
+tts:
+
+category: Firefox steuern
+comment: 
+trigger: firefox tap.* (schließ.*|schie.*)
+terminal_command: xdotool key ctrl+w
+intern_command: 
+tts: ok
+--------------------
+
+
+Um ein Fenster nach vorne zu holen
+----------------------------------
+category: System Befehle
+comment: Fenster nach vorne holen
+trigger: zeige.* (den|programm|fenster)
+terminal_command: wmctrl -a  "{last_spoken_text}"
+intern_command: 
+tts: ok
+--------------------
+
+
+
+Kleinere Bildschirm Helfer
+---------------------------
+
+category: System Befehle
+comment: Fenster invertieren
+trigger: (Bildsch.*|Fenster.*) (inver.*|.*Wert.*)
+terminal_command: xdotool key Super+i
+intern_command:
+tts: Fenster inwertieren
+
+
+category: System Befehle
+comment: Inverter unterm Mauszeiger
+trigger: (Invert.*|.*Wert.*|.*wärt.*) (an.*|ein.*|zeige.*)
+terminal_command: python3 $HOME/Barrierefreiheit/read-aloud/screen_invert.py --topmost --cursor_size=11 --window_with_mouse --mouse_cursor
+intern_command:
+tts: Bildschirm wird im kleinen Fenster unterm Mauszeiger invertiert.
+
+category: System Befehle
+comment: Inverter ausschalten
+trigger: (inver.*|.*Wert.*) (aus.*|ab.*|nicht)
+terminal_command: pkill -f screen_invert.py
+intern_command:
+tts: Bildschirm Inverter ist aus.
+--------------------
+Mausklick nach Bildschirmgitter
+
+category: System Befehle
+comment: Bildschirm Gitter
+trigger: Bildschirm (Ras.*|Gitter) anzei.*
+terminal_command: /opt/micesttm/read-aloud/screen_grid.py & sleep 1 && xdotool search --name "screen grid" windowactivate
+intern_command: bildschirmgitter
+tts: Bildschirmgitter für den Mausklick wurde gewählt.
+
+category: System Befehle
+comment: 
+trigger: Bildschirm (Ras.*|Gitter) (aus.*|nicht)
+terminal_command: pkill -f screen_grid.py
+intern_command:
+tts: Bildschirmgitter wurde ausgeschaltet
+
+Mausfunktionen, Bewegungen
+--------------------------
+category: System Befehle
+comment: Mauszeigergröße ändern
+trigger: (mauszeiger|mauscursor) größe (ändern|einstel.*)
+terminal_command: dconf-editor /org/cinnamon/desktop/interface/cursor-size & sleep 2 && xdotool key Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab
+intern_command:
+tts: die größe vom Mauskörser ändern. Sage klick auf Anwenden um die geänderte größe zu übernehmen. Der Wert steht mittig unten und kann per Zahlen Eingabe direkt geändert werden. Der Standard bei der Installation ist 60
+
+category: System Befehle
+comment: Mauszeigergröße ändern
+trigger: (mauszeiger|mauscursor) (klein.*)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 30
+intern_command:
+tts: kleiner Mauszeiger eingestellt
+
+category: System Befehle
+comment: Mauszeiger auf mittlere Größe
+trigger: (mauszeiger|mauscursor) (mitt.*)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 45
+intern_command:
+tts: mittlerer Mauszeiger eingestellt
+
+category: System Befehle
+comment: Mauszeiger auf sehr groß
+trigger: (mauszeiger|mauscursor) (sehr groß.*)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 100
+intern_command:
+tts: sehr großer Mauszeiger eingestellt
+
+category: System Befehle
+comment: Mauszeiger auf groß
+trigger: (mauszeiger|mauscursor) (groß.*)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 60
+intern_command:
+tts: großer Mauszeiger eingestellt
+
+category: Maus Befehle
+comment: Maus auf eine bestimmte Position bewegen
+trigger: maus auf
+terminal_command: /opt/micesttm/speechrecognition/mousetotext  "{last_spoken_text}"
+intern_command: 
+tts: Maus wurde auf {last_spoken_text} bewegt
+
+category: Maus Befehle
+comment: 
+trigger: klick auf
+terminal_command: /opt/micesttm/speechrecognition/mousetotext "{last_spoken_text}" && xdotool click 1
+intern_command: 
+tts: {last_spoken_text} wurde ausgewählt!
+
+category: Maus Befehle
+comment: 
+trigger: maus.* nach.* link.*
+terminal_command: xdotool mousemove_relative -- -{last_spoken_number} 0
+intern_command:
+tts: okey
+
+category: Maus Befehle
+comment: 
+trigger: maus nach.* recht.*
+terminal_command: xdotool mousemove_relative {last_spoken_number} 0
+intern_command:
+tts:
+
+category: Maus Befehle
+comment: 
+trigger: maus.* nach.* oben.*
+terminal_command: xdotool mousemove_relative -- 0 -{last_spoken_number}
+intern_command:
+tts: okey
+
+category: Maus Befehle
+comment: 
+trigger: maus nach unten
+terminal_command: xdotool mousemove_relative 0 {last_spoken_number} 
+intern_command:
+tts:
+
+category: Maus Befehle
+comment: 
+trigger: maus linksklick
+terminal_command: xdotool click 1 
+intern_command: 
+tts:
+
+category: Maus Befehle
+comment: 
+trigger: maus doppelklick
+terminal_command: xdotool click 1 sleep 0.1 click 1 
+intern_command: 
+tts:
+
+category: Maus Befehle
+comment: 
+trigger: maus rechtsklick
+terminal_command: xdotool click 3 
+intern_command: 
+tts:
+
+category: Maus Befehle
+comment: 
+trigger: maus mittel klick
+terminal_command: xdotool click 2 
+intern_command: 
+tts:
+
+category: Maus Befehle
+comment: 
+trigger: Hilfe Maus
+terminal_command: 
+intern_command: 
+tts: es gibt mindestens 4 Möglichkeiten: 1. sage Maus auf Datei und die Maus bewegt sich auf Datei.   2. Sage klick auf Datei und die Maus klickt auf Datei.   3. Sage Maus linksklick, rechtklick, doppel oder mittel klick.   4. Sage Maus nach links oder oben oder unten oder rechts 100 Pixel.
+
+category: Maus Befehle
+comment: 
+trigger: maus markie.* von
+terminal_command: /opt/micesttm/speechrecognition/mousemarkfrom '{last_spoken_text}'
+intern_command: 
+tts: Wörter können ab {last_spoken_text} markiert werden!
+
+category: Maus Befehle
+comment: 
+trigger: maus markie.* bis
+terminal_command: /opt/micesttm/speechrecognition/mousemarkuntil '{last_spoken_text}'
+intern_command: 
+tts: Wörter wurden bis {last_spoken_text} markiert!
+
+category: Maus Befehle
+comment: 
+trigger: maus markie.* Wörter
+terminal_command: /opt/micesttm/speechrecognition/mousemarkseveralwords '{last_spoken_text}'
+intern_command: 
+tts: Wörter {last_spoken_text} wurden markiert!
+# Hinweis: niemals tts: Wörter '{last_spoken_text}' wurden markiert! (die Zeichen ') benutzen
+
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: taste lösch.*
+terminal_command: xdotool key BackSpace
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (taste|mach.*) rückgängig.*
+terminal_command: xdotool key ctrl+z
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (taste|mach.*) wiederholen.*
+terminal_command: xdotool key ctrl+y
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: nach recht.* markiere.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts: 
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: nach link.* markiere.*
+terminal_command: xdotool key shift+Left
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: markiere.* nach recht.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: markier.* nach link.*
+terminal_command: xdotool key --delay 20 shift+Left
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: markier.* nach oben
+terminal_command: xdotool key shift+Up
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: markier.* nach unten
+terminal_command: xdotool key shift+Down
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: markier.* bis .*anfang.*
+terminal_command: xdotool key shift+110
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: markier.* bis .*ende.*
+terminal_command: xdotool key shift+115
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: zeilen anfang
+terminal_command: xdotool key 110
+intern_command: 
+tts:
+
+category: Tasten Befehle
+comment: 
+trigger: .*inge.* zeilenanfang
+terminal_command: xdotool key 110
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: zeilen .*ende.*
+terminal_command: xdotool key 115
+intern_command: 
+tts:
+
+category: Tasten Befehle
+comment: 
+trigger: .*inge.* zeilenende
+terminal_command: xdotool key 115
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: taste entfernen
+terminal_command: xdotool key 119
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (taste.*|nach) oben
+terminal_command: xdotool key Up
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (taste.*|nach) unten
+terminal_command: xdotool key Down
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (taste.*|nach) link.*
+terminal_command: xdotool key Left
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (taste.*|nach) recht.* 
+terminal_command: xdotool key Right
+intern_command: repeat
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (escape.*)
+terminal_command: xdotool key Escape
+intern_command: 
+tts: 
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (program.*|fenster.*) (been.*|schließ.*)
+terminal_command: xdotool key alt+F4
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: nicht speichern
+terminal_command: xdotool key ctrl+n
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: (Dokum.*|Blatt|Tast.*|jetzt|Bild|Code|das|dies) speichern.*
+terminal_command: xdotool key ctrl+s
+intern_command: 
+tts: Speichern wurde erledigt
+--------------------
+
+Für Libereoffice abgestimmt
+category: Tasten Befehle 
+comment: 
+trigger: speichern unter
+terminal_command: xdotool key shift+ctrl+s
+intern_command: 
+tts:
+--------------------
+
+
+Libreoffice Write nach vorne holen
+----------------------------------
+category: Libreoffice
+comment: 
+trigger: .*zeige.* libreoffice
+terminal_command: xdotool search --name 'writer' windowactivate
+intern_command:
+tts:
+--------------------
+#trigger: libreoffice writer schließen
+#terminal_command: xdotool search --onlyvisible 'Libreoffice writer' windowactivate key alt+F4
+#intern_command: 
+#tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: alles markieren
+terminal_command: xdotool key ctrl+a
+intern_command: 
+tts:
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: kopieren
+terminal_command: xdotool key ctrl+c
+intern_command: 
+tts: habe Markierungen in die Zwischenablage kopiert
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: einfügen
+terminal_command: xdotool key ctrl+v
+intern_command: 
+tts: habe inhalt aus der Zwischenablage eingefügt
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: alles kopieren
+terminal_command: xdotool key ctrl+a key ctrl+c
+intern_command: 
+tts:
+--------------------
+category:  Tasten Befehle
+comment: Suchen
+trigger: suche nach
+terminal_command: xdotool key ctrl+f type "{last_spoken_text}" && xdotool key Return
+intern_command:  
+tts:  
+
+--------------------
+category: Tasten Befehle
+comment: 
+trigger: springe.* (.*satzende.*)
+terminal_command: xdotool key ctrl+f type '.' ; xdotool key Return
+intern_command: 
+tts:
+--------------------
+category: Messenger Telegram
+comment: 
+trigger: starte telegramm
+terminal_command: telegram-desktop && xdotool search --onlyvisible "telegram" windowactivate
+intern_command: 
+tts:
+--------------------
+
+Telegram funktionen, wie Signal funktionen
+------------------------------------------
+category: Messenger Telegram
+comment: Telegramm wird gestartet und dann nach einem Namen gesucht
+trigger: telegramm suche
+terminal_command: xdotool sleep 1 key Escape key ctrl+f type '{last_spoken_text}'
+intern_command:
+tts:
+
+category: Messenger Telegram
+comment: 
+trigger: telegramm an
+terminal_command: xdotool search --onlyvisible "telegram" windowactivate  &&  xdotool sleep 1 key Escape key ctrl+f type '{last_spoken_text}'; xdotool sleep 1 key Return
+intern_command:
+tts:
+
+category: Messenger Signal
+comment: 
+trigger: (signal) suche
+terminal_command: xdotool sleep 1 key Escape key ctrl+f type '{last_spoken_text}'
+intern_command: 
+tts: 
+
+category: Messenger Signal
+comment: 
+trigger: (signal) an
+terminal_command: 'signal-desktop' & xdotool key Escape sleep 1 key ctrl+f type --delay 40 '{last_spoken_text}'; xdotool sleep 1 key Return
+intern_command: 
+tts: 
+
+category: Messenger Signal
+comment: 
+trigger: sta.* (signal)
+terminal_command: 'signal-desktop' & sleep 4 && xdotool sleep 1 key Escape sleep 1 key ctrl+f type --delay 40 '{last_spoken_text}'; xdotool sleep 1 key Return
+intern_command: 
+tts: 
+
+--------------------
+
+
+Markierte Text in die Zwischenablage kopieren und dann vorlesen!
+----------------------------------------------------------------
+category: Vorlesen
+comment: 
+trigger: (.*ischenabla.*|zwisch.*|markiert.*) (.*les.*|vorl.*)
+terminal_command: /opt/micesttm/read-aloud/clipboard.py
+intern_command:
+tts: Bitte Warten!
+
+--------------------
+category: System Befehle
+comment: 
+trigger: (screenshot.*|bildsch.*) (.*erstel.*|schieß.*|mach.*)
+terminal_command: scrot $HOME/Bilder/'%Y-%m-%d.png'
+intern_command:
+tts: Bildschirmfoto wurde erstellt
+
+category: Vorlesen
+comment: 
+trigger: (bildschirmbereich) (vorlesen)
+terminal_command: scrot -s $HOME/MiceStTM/read_aloud/bildschirmfoto.png
+intern_command: 
+tts: markiere den Bereich der vorgelesen werden soll
+
+--------------------
+category: Vorlesen
+comment: 
+trigger: (hint.*|unter.*) maus.* .*les.* (nicht|aus.*)
+terminal_command: pkill -f under-mouse-pointer.py
+intern_command:
+tts: unterm Mauszeiger vorlesen ist ausgeschaltet
+
+category: Vorlesen
+comment: 
+trigger: (hint.*|unter.*) maus.* .*les.*
+terminal_command: /opt/micesttm/read-aloud/under-mouse-pointer.py
+intern_command:
+tts: unterm Mauszeiger vorlesen ist eingeschalte
+--------------------
+
+
+Verzeichnis überwachen und hineinkopierte Bild und Text vorlesen
+----------------------------------------------------------------
+
+category: Vorlesen
+comment: 
+trigger: (Verzeich.*|Dokument) (.*lese.*|.*wach.*) (nicht|aus.*|ab.*)
+terminal_command: pkill -f file-watch-purge.py
+intern_command:
+tts: Abschaltung der Überwachung bestätigt
+
+category: Vorlesen
+comment: 
+trigger: (Verzeich.*|Dokument|Foto.*) (.*lese.*|.*wache.*)
+terminal_command: python3 /opt/micesttm/read-aloud/file-watch-purge.py
+intern_command: 
+tts: Das Barrierefreiheit Dokument Verzeichnis wird überwacht und alle Elemente die dort hinein kopiert werden, werden vorgelesen und anschließend gelöscht
+--------------------
+
+
+Barrierefreiheit des Systems Bildschirmleseser Lupe usw. ab hier (Orca)
+
+- der folgende Trigger ist länger als der Trigger zum Vorlesen einschalten,
+ somit muss dieser zuerst
+
+category: System Befehle
+comment: 
+trigger: bild.* (lese.*|.*eser.*) (einst.*|konfig.*)
+terminal_command: orca -s
+intern_command:
+tts: Bildschirmleser kann eingestellt werden!
+
+- Bildschirm leser ausschalten
+category: System Befehle
+comment: 
+trigger: bild.* (.*lese.*|.*eser.*) (aus.*|nicht)
+terminal_command: pkill orca
+intern_command:
+tts: Bildschirmleser ist ausgeschaltet!
+
+- Bildschirm leser einschalten
+category: System Befehle
+comment: 
+trigger: bild.* (lese.*|.*eser.*|vorlese.*)
+terminal_command: orca
+intern_command:
+tts: Bildschirmleser ist eingeschaltet!
+--------------------
+
+- Barrierefreiheit einstellen
+category: System Befehle
+comment: 
+trigger: barriere.* (einst.*|konfig.*)
+terminal_command: cinnamon-settings universal-access
+intern_command:
+tts: Barrierefreiheit kann eingestellt werden!
+--------------------
+
+- Bilder vergrößern
+category: System Befehle
+comment: 
+trigger: (bild.*|screen|monitor) .*größ.*
+terminal_command: xdotool key super+alt+plus
+intern_command: repeat
+tts: Bild wurde vergrößert!
+--------------------
+- Bild verkleinern
+category: System Befehle
+comment: 
+trigger: (bild.*|screen|monitor) .*klein.*
+terminal_command: xdotool key super+alt+minus
+intern_command: repeat
+tts: Bild wurde verkleinert!
+--------------------
+
+category: Schreiben
+comment: Diktiermodus
+trigger: diktier.* (ein.*|an.*|sta.*)
+terminal_command: 
+intern_command: diktiermodus_write
+tts: diktiermodus läuft
+
+category: makros bearbeiten
+comment: makros hier bearbeiten
+trigger: ma.*  (hinzu.*|bearb.*)
+terminal_command: /opt/micesttm/speechrecognition/MiceStTM-Editor.gambas
+intern_command: 
+tts: der Makro Editor wurde gestartet!
+
+
+category: Schreiben
+comment: Buchstabieren
+trigger: buchstabier.*
+terminal_command: xdotool type -delay 100 '{last_spoken_text}'
+intern_command: spell
+tts:
+
+category: Schreiben
+comment: Datenbank für Nomen erweitern, falls Wörter klein geschrieben werden, kann das korrigiert werden, in dem das entsprechende Wort in die Datenbank aufgenommen wird
+trigger: wort großschreiben
+terminal_command: echo '{last_spoken_text}' >>upper-word-list.txt
+intern_command: 
+tts: das Wort '{last_spoken_text}' wurde hinzugefügt
+
+
+----------------------------
+ab hier nur ein Wort trigger
+----------------------------
+category: System Befehle
+comment: 
+trigger: Lupe
+terminal_command: cinnamon-settings universal-access
+intern_command:
+tts: Barrierefreiheit kann eingestellt werden!
+--------------------
+category: Tools
+comment: 
+trigger: .*rechn.*
+terminal_command: 
+intern_command: calc
+tts: das Ergebnis ist {last_spoken_number}
+--------------------
+category: Tasten Befehle
+comment: Textstelle markieren
+trigger: markiere
+terminal_command: xdotool key --delay 40 ctrl+f type --delay 40 '{last_spoken_text}'; xdotool key Return; xdotool sleep 0.1 key Escape
+intern_command:
+tts:
+--------------------
+category: System Befehle
+comment: Lautsärke um 20% erhöhen
+trigger: laute.*
+terminal_command: amixer set Master 20%+
+intern_command: 
+tts: Okey
+--------------------
+category: System Befehle
+comment: Lautstärke um 20% reduzieren
+trigger: leis.*
+terminal_command: amixer set Master 20%-
+intern_command: 
+tts: Okey
+--------------------
+
+--------------------
+Return/Enter Taste drücken
+--------------------------
+- um Briefe Texte neue Absätze zu tätigen
+
+category: Tasten Befehle
+comment: Return Enter Taste drücken
+trigger: (absenden|enter|absatz)
+terminal_command: xdotool key Return
+intern_command: 
+tts: 
+-------------------------------------
+category: Tasten Befehle
+comment: Escape Taste drücken
+trigger: (schließen)
+terminal_command: xdotool key Escape
+intern_command: 
+tts: 
+
+category: Rolladen
+comment: Terrasse öffnen
+trigger: (Terrassen) (Rolllad.*) (öff.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open
+intern_command: 
+tts: die Terrassen Rollade wird geöffnet
+-----------------------
+category: Rolladen
+comment: Terrasse schließen
+trigger: (Terrassen) (Rolllad.*) (schließ.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close
+intern_command: 
+tts: die Terrassen Rollade wird geschlossen
+-----------------------
+category: Rolladen
+comment: Straße schließen
+trigger: (Straß.*) (Rolllad.*) (schließ.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close
+intern_command: 
+tts: die Straßen Rollade wird geschlossen
+-----------------------
+category: Rolladen
+comment: Straße öffnen
+trigger: (Straß.*) (Rolllad.*) (öff.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open
+intern_command: 
+tts: die Straßen Rollade wird öffnen
+-----------------------
+category: Rolladen
+comment: Straße schließen
+trigger: guten morgen
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open; curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open
+intern_command: 
+tts: guten Morgen
+-----------------------
+category: Rolladen
+comment: gute Nacht
+trigger: gute nacht
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close; curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close
+intern_command: 
+tts: gute Nacht, schlaf gut
+-----------------------
+category: Rolladen
+comment: Rolladen stoppen
+trigger: Rollad.* anhalt.*
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=stop; curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=stop
+intern_command: 
+tts: die Rolladen wurden gestoppt
+-----------------------
+category: Rolladen
+comment: Rolladen zu Position
+trigger: Terrassen (Roll.*|roul.*|.*lad.*) auf
+terminal_command: curl -X POST -d '{"id":1,"method":"Cover.GoToPosition","params":{"id":0,"pos":{last_spoken_number}}}' http://xxx.xxx.xxx.xx/rpc
+intern_command: 
+tts: die Rolladen wurden auf {last_spoken_number} gestellt
+-----------------------
+category: Rolladen
+comment: Rolladen zu Position
+trigger: Stra.* (Roll.*|roul.*|.*lad.*) auf
+terminal_command: curl -X POST -d '{"id":1,"method":"Cover.GoToPosition","params":{"id":0,"pos":{last_spoken_number}}}' http://xxx.xxx.xxx.xx/rpc
+intern_command: 
+tts: die Rolladen wurden auf {last_spoken_number} gestellt
+-----------------------
+category: all
+comment: Menükarte der Caritasd Werkstatt
+trigger: (.*as|menü.*)  (.*karte|.*essen|für|am|gibt|es)
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/cuttext.py {last_spoken_text} | piper-tts --model /opt/micesttm/voice/de/de_DE-thorsten-low.onnx --output-file menu.wav && /opt/micesttm/share/play.py menu.wav 1.2
+intern_command: 
+tts: 
+-----------------------
+category: Tasmota
+comment: tasmota hinzufügen
+trigger: steckd.* hinzu.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/add_tasmota.sh {last_spoken_text}
+intern_command: 
+tts: 
+
+
+category: Tasmota
+comment: Ventilator schalten
+trigger: (lüfter|ventilator) ein.*
+terminal_command: curl -m 2 http://xxx.xxx.xxx.89/cm?cmnd=Power+on
+intern_command: 
+tts: der Ventilator wurde eingeschaltet
+
+category: Tasmota
+comment: Ventilator schalten
+trigger: (Ventilator|lüfter) aus.*
+terminal_command: curl -m 2 http://xxx.xxx.xxx.89/cm?cmnd=Power+off
+intern_command: 
+tts: der Ventilator wurde ausgeschaltet
+
+category: telefonieren
+comment: anrufen
+trigger: (telefon.*) mit
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/anrufe/anruf.sh {last_spoken_text}
+intern_command:
+tts:
+
+category: telefonieren
+comment: anruf auflegen
+trigger: auflege.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/anrufe/auflegen.sh
+intern_command:
+tts:
+
+category: telefonieren
+comment: anrufe erkennen
+trigger: eingeh.* anruf.* über.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/anrufe/eingehender.sh
+intern_command:
+tts:
+
+
+category: telefonieren
+comment: anrufe annehmen
+trigger: anruf an.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/anrufe/annehmen.sh
+intern_command: 
+tts: 
+
+-----------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: Bade.*  (an.*|ein.*)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+on
+intern_command: 
+tts: die Badheizung ist eingeschaltet
+-----------------------
+category: Tasmota
+comment: Tasmota Gerät schalten
+trigger: Bade.*  au.*
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+off
+intern_command: 
+tts: die Badheizung ist ausgeschaltet
+-----------------------
+category: Chats/Mails
+comment: Nachrichten
+trigger: nachri.* a.* fritz
+terminal_command: curl -k -X POST 'https://xxx.xxx.xxx.xxx:5001/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&version=2&token=%22deinsynotoken%22'-H 'Content-Type: application/json' -d 'payload={"text":"{last_spoken_text}"}'
+  -H 'Content-Type: application/json' \
+  -d 'payload={"text":"{last_spoken_text}"}'
+intern_command: 
+tts: nachricht: {last_spoken_text}, wurde versendet.
+-----------------------
+category: Mikrofon
+comment: Mikrofon gain einstellen
+trigger: mikro.* empfi.* erhö.*
+terminal_command: pactl set-source-volume @DEFAULT_SOURCE@ +10%
+intern_command: 
+tts: ok +10
+-----------------------
+category: Mikrofon
+comment: Mikrofon gain einstellen
+trigger: mikro.* empfi.* a.*
+terminal_command: pactl set-source-volume @DEFAULT_SOURCE@ {last_spoken_number}%
+intern_command: 
+tts: ok {last_spoken_number} Prozent
+-----------------------
+category: all
+comment: 
+trigger: system neu.*
+terminal_command: reboot
+intern_command: 
+tts: 
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: spiele (musik|playlist.*|album|band)
+terminal_command: xterm -e bash $HOME/Music/vlc/add.sh "{last_spoken_text}"
+intern_command: 
+tts: bitte warten!
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: vorh.* (stück.*|song.*)
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/prev.sh
+intern_command: 
+tts: 
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: spiel.* (stück.*|lied|hör.*)
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/search.sh {last_spoken_text} && lxterm -e bash /home/xxxxxx/Music/vlc/next.sh
+intern_command: 
+tts: 
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: pause
+terminal_command: lxterm -e bash $HOME/Music/vlc/savebookmark.sh && lxterm -e bash /home/xxxxxx/Music/vlc/pause.sh
+intern_command: 
+tts: 
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: letz.* hör.* weiterspielen
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/weiterspielen.sh
+intern_command: 
+tts: OK
+
+
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: vorspulen
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/vorspulen.sh {last_spoken_number} && lxterm -e bash $HOME/Music/vlc/savebookmark.sh
+intern_command: 
+tts: 
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: zurück sp.*
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/zurueck.sh {last_spoken_number}
+intern_command: 
+tts: 
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: stelle (merken|speich.*)
+terminal_command: lxterm -e bash $HOME/Music/vlc/savebookmark.sh
+intern_command: 
+tts: Die Stelle wurde gemerkt.
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: (bookmark|stelle) (weit.*|lade.*)
+terminal_command: lxterm -e bash $HOME/Music/vlc/loadbookmark.sh
+intern_command: 
+tts: Die Stelle wurde geladen.
+
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: (abspielen|weitersp.*)
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/play.sh
+intern_command: 
+tts: 
+-----------------------
+
+category: Musik
+comment: meine Songs abspielen
+trigger: (hörb.*|hörspiel.*) (weiter.*|hör.*)
+terminal_command: lxterm -e bash  "$HOME/Music/vlc/addhörbuch.sh" Hörspiele && sleep 3 && bash $HOME/Music/vlc/weiterspielen.sh
+intern_command: 
+tts: Bitte warten die Hörspiele werden geladen
+-----------------------
+category: Musik
+comment: meine Songs abspielen
+trigger: näch.* (stück.*|song.*)
+terminal_command: lxterm -e bash /home/xxxxxx/Music/vlc/next.sh
+intern_command: 
+tts: 
+-----------------------
+category: all
+comment: vlc player starten
+trigger: (vlc|musik) player start.*
+terminal_command: lxterm -e "vlc  --extraintf rc --rc-host localhost:4212 --auto-preparse"
+intern_command: 
+tts: jo fertig
+-----------------------
+

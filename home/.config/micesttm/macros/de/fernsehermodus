@@ -1,0 +1,180 @@
+category: Fernseher
+comment: 
+trigger: (nach|zurück) (link.*|spul.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/nachlinks'
+intern_command: repeat
+tts: OK
+
+category: Fernseher
+comment: 
+trigger: (nach|vor.*) (recht.*|.*spule.*)
+terminal_command:  mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/nachrechts'
+intern_command: repeat
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: nach obe.*
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/nachoben'
+intern_command: repeat
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: nach unte.*
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/nachunten'
+intern_command: repeat
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: zurück
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/zurück'
+intern_command: repeat
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: (auswähl.*|bestätig.*|.*spielen|enter|play|.*pause.*|weiter.*)
+terminal_command:  mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/enter'
+intern_command:
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: (menü|hauptm.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/menue'
+intern_command:
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: disney
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/disney'
+intern_command:
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: (amazone|prime)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/prime'
+intern_command:
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: netflix
+terminal_command:  mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/netflix'
+intern_command: 
+tts: ok
+
+
+category: Fernseher
+comment: 
+trigger: fernseher (einsch.*|ausschal.*)
+terminal_command:  mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/power'
+intern_command:
+tts: der Fernseher wurde geschaltet
+
+category: Fernseher
+comment: 
+trigger: (stumm|Ton) (Taste.*|schalten)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/stumm'
+intern_command: 
+tts: Stummtaste betätigt
+
+category: Fernseher
+comment: 
+trigger: leise.*
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/leiser'
+intern_command: repeat
+tts: 
+
+category: Fernseher
+comment: 
+trigger: laute.*
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/lauter'
+intern_command: repeat
+tts:
+
+category: Fernseher
+comment: 
+trigger: bildschirm.* aus.*
+terminal_command: $HOME/.local/bin/bscpylgtvcommand xxx.xxx.xxx.xxx turn_screen_off
+intern_command:
+tts: Ok
+
+category: Fernseher
+comment: 
+trigger: bildschirm.* (ein.*|an.*)
+terminal_command: $HOME/.local/bin/bscpylgtvcommand xxx.xxx.xxx.xxx turn_screen_on
+intern_command:
+tts: Ok
+
+category: Fernseher
+comment: 
+trigger: hdmi
+terminal_command: $HOME/.local/bin/bscpylgtvcommand xxx.xxx.xxx.xxx set_input HDMI_{last_spoken_number}
+intern_command:
+tts:
+
+category: Fernseher
+comment: 
+trigger: helligkeit auf
+terminal_command: $HOME/.local/bin/bscpylgtvcommand xxx.xxx.xxx.xxx set_current_picture_settings "{\"backlight\": {last_spoken_number}}"
+intern_command:
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: youtube
+terminal_command: $HOME/.local/bin/bscpylgtvcommand xxx.xxx.xxx.xxx launch_app youtube.leanback.v4
+intern_command:
+tts: ok
+
+category: Fernseher
+comment: 
+trigger: browser
+terminal_command: $HOME/.local/bin/bscpylgtvcommand xxx.xxx.xxx.xxx launch_app com.webos.app.browser
+intern_command:
+tts: ok
+
+
+
+category: Fernseher
+comment: 
+trigger: buchstab.* Leerzeichen
+terminal_command: #/opt/micesttm/speechrecognition/tv_lg_youtube_search_keyboard_spell.py -w " "
+intern_command: 
+tts: 
+
+
+category: Fernseher
+comment: 
+trigger: suche
+terminal_command: #/opt/micesttm/speechrecognition/tv_lg_youtube_search_keyboard.py -w '{last_spoken_text}'
+intern_command: 
+tts: 
+
+category: Fernseher
+comment: 
+trigger: neu.* buchstab.*
+terminal_command: #/opt/micesttm/speechrecognition/tv_lg_youtube_search_keyboard_spell.py -w '*'
+intern_command: repeat
+tts: 
+
+category: Fernseher
+comment: 
+trigger: buchstabe löschen
+terminal_command: #/opt/micesttm/speechrecognition/tv_lg_youtube_search_keyboard_spell.py -w '-'
+intern_command: repeat
+tts: 
+
+category: Fernseher
+comment: 
+trigger: buchstabe
+terminal_command: #/opt/micesttm/speechrecognition/tv_lg_youtube_search_keyboard_spell.py -w '{last_spoken_text}'
+intern_command: spell
+tts: 
+
+

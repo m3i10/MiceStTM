@@ -1,0 +1,72 @@
+# Der Umgang mit den Zahlen
+# -------------------------
+
+# hier die Kommentare mit # beginnen.
+
+# hier werden ausgeschriebene Zahlen in ganze Zahlen umgewandelt
+# diese Datei wird erst abgearbeitet, wenn in macro.de die interne Variable
+# {last_spoken_number} steht. 
+
+# Erklärung:
+# z.B.: tausend ein hundertzweiundzwanzig (1122) wird zunächst in 1000 100 2 20 umgewandelt.
+# durch die Leerzeichen erkennt das Programm die einzelnen Zahlen und addiert diese.
+# bzw. 100 oder 1000 wird mit der Ziffer davor multipliziert daher: 2 1000 ergibt intern
+# 2  1000 = 2000
+# z.B.: 2345 wird hier unter number-replace.txt 2 1000 3 100 5 40
+# intern wird "2x10003x100540" gerechnet
+
+# hier ein Leerzeichen hinter den Zahlen lassen, da aus neunundvierzig 940 
+# wird. Durch ein Leerzeichen wandelt er dies in 9 40 das Leerzeichen gilt intern als Addition und wird 49
+# oft erkennt die Spracherkennung zweiundzwanzig oder zwei und zwanzig.
+
+# ab hier gehts los:
+
+elf(->) 11
+zwölf(->) 12
+
+zweimal(->)2 mal
+dreimal(->)3 mal
+viermal(->)4 mal
+fünfmal(->)5 mal
+
+zehn(->) 10 
+zwanzig(->) 20 
+dreißig(->) 30 
+vierzig(->) 40 
+fünfzig(->) 50 
+sechzig(->) 60 
+siebzig(->) 70 
+achtzig(->) 80 
+neunzig(->) 90 
+
+hundert(->) 100 
+tausend(->) 1000 
+
+ein(->)1 
+en 1 sch(->)einsch
+null(->)0 
+eins(->)1 
+1 ch(->)einsch
+zwei(->)2 
+drei(->)3 
+vier(->)4 
+fünf(->)5 
+sechs(->)6 
+sech(->)6 
+sieben(->)7 
+sieb(->)7 
+acht(->)8 
+neun(->)9 
+#er versteht oft neuen statt neun somit neuen
+neuen(->)9 
+und(->) 
+komma(->).
+,(->).
+plus(->)+
+mal(->)*
+geteilt(->)/
+minus(->)-
+klammer auf(->)(
+klammer zu(->))
+wurzel(->)**0.5
+durch(->)/
