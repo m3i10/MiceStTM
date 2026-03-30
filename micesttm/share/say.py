@@ -26,8 +26,8 @@ def raw(tts):
 	os.system('pkill piper')
 	os.system('pkill play.py')
 	
-	os.system("echo '" + tts + "' | piper-tts --model " + piperModelDir + " --output-file " + "/dev/shm/say.wav && " + tts_player  + " /dev/shm/say.wav")
-	print("echo '" + tts + "' | piper-tts --model " + piperModelDir + " --output-file " + "/dev/shm/say.wav  && " + tts_player  + " /dev/shm/say.wav")
+	os.system("echo '" + tts + "' | piper --model " + piperModelDir + " --output-file " + "/dev/shm/say.wav && " + tts_player  + " /dev/shm/say.wav")
+	print("echo '" + tts + "' | piper --model " + piperModelDir + " --output-file " + "/dev/shm/say.wav  && " + tts_player  + " /dev/shm/say.wav")
 
 def cache(tts, path = cache_path, filename = ''): # dieser Teil ist für Standart Ausgaben der Spracherkennung, um diese zu beschleunigen
 	path = path + '/'
@@ -49,5 +49,5 @@ def cache(tts, path = cache_path, filename = ''): # dieser Teil ist für Standar
 		if os.path.isfile(path + say_file + '.wav') == True:
 			os.system(tts_player + " '" + path + say_file + ".wav'")
 		else:
-			os.system("echo '" + tts + "' | piper-tts --model " + piperModelDir + " --output-file '" + path + say_file + ".wav' && " +  tts_player + " '" + path + say_file + ".wav'")
+			os.system("echo '" + tts + "' | piper --model " + piperModelDir + " --output-file '" + path + say_file + ".wav' && " +  tts_player + " '" + path + say_file + ".wav'")
 

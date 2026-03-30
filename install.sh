@@ -41,6 +41,7 @@ sudo mv de_DE-thorsten-high.onnx* /opt/micesttm/voice/
 pip3 install --break-system-packages numpy pyperclip vosk sounddevice \
 scipy pytesseract opencv-python Pillow watchdog langdetect piper-tts \
 pynput pyautogui pycairo pyscreenshot speechrecognition pyaudio
+python3 -m pip install pathvalidate --break-system-packages
 
 # 6. Test-Ausgabe
 echo "Installation abgeschlossen. Teste Audio..."
