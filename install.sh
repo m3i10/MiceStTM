@@ -1,42 +1,48 @@
-!#/bin/bash
-# Test Version(Notiz)
+#!/bin/bash
 
-cp -r home/MiceStTM $HOME/
-cp -r home/.config $HOME/
-sudo cp -r opt/micesttm /opt
+# 1. Distribution erkennen
+if [ -f /etc/arch-release ]; then
+    PKG_MGR="pacman -S --noconfirm"
+    AUR_MGR="pamac build --no-confirm" # oder yay -S
+elif [ -f /etc/debian_version ]; then
+    PKG_MGR="apt-get install -y"
+    sudo apt-get update
+elif [ -f /etc/fedora-release ]; then
+    PKG_MGR="dnf install -y"
+fi
 
-sudo mkdir /opt/micesttm/voice
-sudo mkdir /opt/micesttm/model
-wget https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip
-sudo unzip vosk-model-small-de-0.15.zip -d /opt/micesttm
-sudo mv /opt/micesttm/vosk-model-small-de-0.15 /opt/micesttm/model
-wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx.json
-wget https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx
-sudo cp de_DE-thorsten-high.onnx de_DE-thorsten-high.onnx.json /opt/micesttm/voice
-pamac build piper-tts-bin
-sudo pacman -S tk
+# 2. System-Abhängigkeiten installieren
+sudo $PKG_MGR wget unzip rsync python3-pip python3-tk xdotool scrot alsa-utils libatlas-base-dev tesseract-ocr tk
 
-sudo pacman -S xdotool
-sudo pacman -S scrot
+# Piper-TTS (AUR für Arch, sonst via pip am Ende)
+if [ -n "$AUR_MGR" ]; then
+    $AUR_MGR piper-tts-bin
+fi
 
-echo "das ist ein Test!" | piper-tts --model /opt/micesttm/voice/de_DE-thorsten-high.onnx --output_raw |aplay -r 22050 -f S16_LE -t raw
+# 3. Dateien kopieren (inkl. versteckter Dateien via /.)
+update.sh
 
-pip3 install numpy --break-system-packages
+# 4. Modelle laden
+sudo mkdir -p /opt/micesttm/voice /opt/micesttm/model
+cd /tmp
 
-pip3 install pyperclip --break-system-packages
-pip3 install vosk --break-system-packages
-pip3 install re --break-system-packages
-pip3 install sounddevice --break-system-packages
-pip3 install argparse --break-system-packages
-pip3 install queue --break-system-packages
-pip3 install scipy --break-system-packages
-pip3 install pytesseract opencv-python Pillow --break-system-packages
-pip3 install watchdog --break-system-packages
-pip3 install langdetect --break-system-packages
-pip3 install piper-tts --break-system-packages
-pip3 install pynput --break-system-packages
-pip3 install pyautogui --break-system-packages
-pip3 install pycairo --break-system-packages
-pip3 install pyscreenshot --break-system-packages
-pip3 install speechrecognition --break-system-packages
-pip3 install pyaudio --break-system-packages
+# Vosk Model
+wget -N https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip
+unzip -o vosk-model-small-de-0.15.zip
+sudo mv vosk-model-small-de-0.15/* /opt/micesttm/model/
+
+# Piper Voice
+wget -N https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx.json
+wget -N https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx
+sudo mv de_DE-thorsten-high.onnx* /opt/micesttm/voice/
+
+# 5. Python-Pakete (Zusammengefasst für Speed)
+# Hinweis: re, argparse und queue sind Standard-Libraries und brauchen kein pip
+pip3 install --break-system-packages numpy pyperclip vosk sounddevice \
+scipy pytesseract opencv-python Pillow watchdog langdetect piper-tts \
+pynput pyautogui pycairo pyscreenshot speechrecognition pyaudio
+
+# 6. Test-Ausgabe
+echo "Installation abgeschlossen. Teste Audio..."
+echo "Das ist ein Test" | piper --model /opt/micesttm/voice/de_DE-thorsten-high.onnx --output_raw | aplay -r 22050 -f S16_LE -t raw
+

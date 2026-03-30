@@ -1,9 +1,7 @@
 #!/bin/bash
-# ein Zweiter Start beendet das Programm
-/opt/micesttm/speechrecognition/MiceStTM.sh
-sleep 2
-# ein dritter Start startet das Programm neu
-/opt/micesttm/speechrecognition/MiceStTM.sh
 
+/opt/micesttm/speechrecognition/MiceStTM.sh
+sleep 3
+/opt/micesttm/speechrecognition/MiceStTM.sh
 
 

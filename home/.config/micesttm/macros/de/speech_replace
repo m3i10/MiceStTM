@@ -1,7 +1,6 @@
 # Kommandos die selten richtig verstanden werden nach(->) übersetzen
 # Kommentare nach #
 
-
 # Hier die Erklärung der internen Variablen wie {space} {delspace} und {->}...
 # {space}: um ein Leerzeichen einzufügen
 # {delspace}: kein Leerzeichen schreiben. Bzw. das letzte Leerzeichen entfernen
@@ -20,6 +19,7 @@ state(->)starte
 
 # Text
 #
+
 
 lautstärker(->)lautstärke
 laut stärker(->)lautstärke
@@ -43,8 +43,8 @@ D e?(->){delspace}de?
 D e.(->){delspace}de.
 
 eine Adresse(->)meine adresse
-meine Adresse(->)Max Mustermann\nMustermannstraße 1\n44332 Bottrup\n{nopuncture}{delspace}
-meiner Telefonnummer(->)meine Telefonnummer
+meine Adresse(->)M3i10\nMustermannstraße 1\n44332 Bottrup\n{nopuncture}{delspace}
+meiner Telefonnummer(->)meine telefonnummer
 meine Telefonnummer(->)0123456789{nopuncture}
 neue Zeile(->)\n{delspace}
 Leerzeichen(->){space}
@@ -86,6 +86,25 @@ taste s k(->)escape
 
 Konrad Katalog(->)www.conrad.de{nopuncture}
 Conrad Katalog(->)www.conrad.de{nopuncture}
+
+Terrassen orlando(->)terrassen rolllade
+Terrassen hollande(->)straßen rollade
+Terrassen rollator(->)straßen rollade
+Terrassen roulade(->)straßen rollade
+erfassen roulade(->)straßen rollade
+tea passen(->)straßen rollade
+Terrassen roller(->)straßen rollade
+Terrassen ronaldo(->)terassen rollade
+Terrassen nur lage(->)terrassen rollade
+Terrassen Ballade(->)terrassen rollade
+aber lage(->)rollade
+
+Straßen hollande(->)straßen rollade
+Straßen rollator(->)straßen rollade
+Straßen roulade(->)straßen rollade
+Straßen rouladen(->)straßen rollade
+sStraßenhunde anschließend(->)straßen rollade
+Straßenränder beschließen(->)straßen rollade schließen
 
 #Buchstabieren
 kleines a(->)a{delspace}
@@ -149,4 +168,8 @@ großes ö(->)Ö{delspace}
 großes ä(->)Ä{delspace}
 großes ü(->)Ü{delspace}
 #s z(->)ß
+
+#google spracherkennung
+
+
 

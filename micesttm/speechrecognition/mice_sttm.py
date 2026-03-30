@@ -78,8 +78,8 @@ write_mode = False
 
 #-----------------------------------------------------------------------------------------------
 # eigene Library my_watchdog
-#import my_watchdog
-#my_watchdog.program_name(os.path.basename(__file__)) # eigenen Dateiname ermitteln und initialisieren
+import my_watchdog
+my_watchdog.program_name(os.path.basename(__file__)) # eigenen Dateiname ermitteln und initialisieren
 #-----------------------------------------------------------------------------------------------
 
 
@@ -455,7 +455,8 @@ def load_macro(speechtext):
 				print(terminal_command)
 				if terminal_command != '':
 					os.system(terminal_command + " &")
-					
+
+				os.system(unmuteSpeaker)
 				if tts != '':
 					if change_numbers == True:
 						say.raw(tts)
@@ -660,8 +661,8 @@ try:
 						dictation_mode = False
 						write_mode = False
 						os.system(unmuteSpeaker)
-						os.system(tts_player + ' ' + signal + ' &')
-						time.sleep(0.2)
+						os.system(tts_player + ' ' + signal)
+						time.sleep(0.5)
 						os.system(muteSpeaker)
 						ready_to_recive=True
 						wait_window = time.time()
@@ -682,11 +683,12 @@ try:
 				if dump_fn is not None:
 					dump_fn.write(data)
 			
-				#if my_watchdog.check_twice_started():	# wenn das Programm ein 2. Mal gestartet wird, werden alle beendet
-				#	print('\nDone')
-				#	parser.exit(0)
-				#	parser.exit(type(e).__name__ + ': ' + str(e))
-				#	quit()
+				if my_watchdog.check_twice_started():	# wenn das Programm ein 2. Mal gestartet wird, werden alle beendet
+					time.sleep(4)
+					print('\nDone')
+					parser.exit(0)
+					parser.exit(type(e).__name__ + ': ' + str(e))
+					quit()
 
 
 except KeyboardInterrupt:

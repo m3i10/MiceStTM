@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MiceStTM
+Comment=MiceStTM Speechrecognition starten
+Exec=/opt/micesttm/speechrecognition/MiceStTM.sh
+Icon=/opt/micesttm/Icons/MiceSTTM-green.png
+Terminal=false
+Categories=Utility;Application;
+Name[de_DE]=MiceStTM

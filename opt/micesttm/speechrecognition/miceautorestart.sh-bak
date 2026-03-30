@@ -1,5 +1,0 @@
-#!/bin/bash
-while true;do
-	/opt/micesttm/speechrecognition/mice_sttm.py
-done
-

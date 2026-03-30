@@ -132,4 +132,11 @@ intern_command:
 tts:
 --------------------
 
+category: Tasten Befehle
+comment:
+trigger: (neuer|taste|mail|brief) (absenden|enter|absatz)
+terminal_command: xdotool key Return
+intern_command: repeat
+tts:
+
 
