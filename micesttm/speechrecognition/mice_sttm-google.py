@@ -362,20 +362,6 @@ def load_macro(speechtext):
 				dictation_mode = False
 			change_numbers=False
 			
-#			if intern_command.find("write") >= 0: 	# im Dateinamen write bedeutet dauerhaft schreiben können
-#				write_mode = True					# deaktivieren mit wakeword
-
-#			if intern_command.find("spell") >= 0:
-#				last_spoken_text = last_spoken_text.replace(' ', '') # spell remove space
-
-#			if intern_command.find("puncture") >= 0: # Groß Kleinschreibung aktivieren
-#				# erstmal die Punktation
-#				if last_spoken_text.find("{nopuncture}") == -1 and len(last_spoken_text) > 3:
-#					last_spoken_text = punctuation(last_spoken_text)  # Großschreibung nach Satzzeichen
-#				last_spoken_text = last_spoken_text.replace("{nopuncture}", "")
-
-#			print("dictation_mode: " + str(dictation_mode))
-#			print("write_mode: " + str(write_mode)	)
 			#----------------------------------------------------------------
 			
 			
@@ -444,10 +430,8 @@ def load_macro(speechtext):
 			print("Variable:")
 			print(last_spoken_text)
 			print(last_spoken_number)
-			#print(str(dictation_mode) + ' ' + macro_file)
-			#if dictation_mode == True:
-			#	time.sleep(2)
-			#return True
+
+			return True
 
 
 def int_or_str(text):
