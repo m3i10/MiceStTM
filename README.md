@@ -57,5 +57,14 @@ Dies ist ein Ein-Personen-Projekt. Feedback, Fehlerberichte und Erweiterungen si
 
 „Feel free to fork this project and submit pull requests. Contributions are always welcome!“
 
-Disclaimer: Die Nutzung erfolgt auf eigene Verantwortung. Da sich das Projekt in der Entwicklung befindet, können Fehler nicht ausgeschlossen werden.
+# ⚠️ Wichtiger Hinweis zur Nutzung und Projektstatus
+
+> **Disclaimer:** Die Nutzung dieser Software erfolgt auf eigene Verantwortung. 
+
+Bitte beachte vor der Nutzung die folgenden Rahmenbedingungen zu diesem Repository:
+
+* **Ursprung des Projekts:** Diese Software entstand ursprünglich als rein persönliche Unterstützung für einen erblindeten Freund. 
+* **KI-Unterstützung:** Teile des Quellcodes wurden mithilfe von Künstlicher Intelligenz (KI) generiert oder optimiert.
+* **Teststatus & Dokumentation:** Da ich die Spracherkennung selbst nur sehr spezifisch im Bereich der Hausautomatisierung nutze und bisher kein externes Feedback vorliegt, ist die Software aus Zeitgründen nicht vollumfänglich getestet. Fehler können daher nicht ausgeschlossen werden. Auch die Dokumentation ist unter Umständen unvollständig oder weicht vom tatsächlichen Code ab.
+* **Projektstatus:** Das Projekt befindet sich nicht mehr in der aktiven Entwicklung und wird von meiner Seite aus **nicht weiterentwickelt**.
 
