@@ -1,0 +1,80 @@
+# Handling numbers
+# ----------------
+
+# comments start with # here.
+
+# here written-out numbers are converted into integers
+# this file is only processed if the internal variable
+# {last_spoken_number} is in macro.en.
+
+# Explanation:
+# e.g.: one thousand one hundred twenty-two (1122) is first converted into 1000 100 20 2.
+# due to the spaces, the program recognizes the individual numbers and adds them.
+# or 100 or 1000 is multiplied by the digit before it, therefore: 2 1000 results internally in
+# 2 * 1000 = 2000
+# e.g.: 2345 becomes 2 1000 3 100 40 5 here in number-replace.txt
+# internally "2x1000+3x100+40+5" is calculated
+
+# leave a space after the numbers here, otherwise forty-nine becomes 409.
+# With a space, it converts this into 40 9; the space counts internally as addition and becomes 49.
+# Speech recognition often detects twenty-two or twenty two.
+
+# let's start here:
+
+eleven(->) 11
+twelve(->) 12
+thirteen(->) 13
+fourteen(->) 14
+fifteen(->) 15
+sixteen(->) 16
+seventeen(->) 17
+eighteen(->) 18
+nineteen(->) 19
+
+twice(->)2 times
+two times(->)2 times
+three times(->)3 times
+four times(->)4 times
+five times(->)5 times
+
+ten(->) 10 
+twenty(->) 20 
+thirty(->) 30 
+forty(->) 40 
+fifty(->) 50 
+sixty(->) 60 
+seventy(->) 70 
+eighty(->) 80 
+ninety(->) 90 
+
+hundred(->) 100 
+thousand(->) 1000 
+
+# not work a(->)1 
+null(->)0 
+zero(->)0 
+one(->)1 
+two(->)2 
+to(->)2 
+three(->)3 
+four(->)4 
+for(->)4 
+five(->)5 
+six(->)6 
+seven(->)7 
+eight(->)8 
+nine(->)9 
+and(->) 
+,(->).
+point(->).
+comma(->).
+plus(->)+
+times(->)*
+multiplied by(->)*
+divided by(->)/
+minus(->)-
+open parenthesis(->)(
+close parenthesis(->))
+square root(->)**0.5
+root(->)**0.5
+

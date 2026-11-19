@@ -1,0 +1,1288 @@
+The Macro System (Configuration)
+
+The heart of the control system is the macro file. It defines which voice commands trigger which actions. The system is designed for maximum flexibility: In case of syntax errors within the triggers, the system outputs 2 consecutive pings as a warning.
+The Processing Process
+Before a command is interpreted, it passes through the file speech-replace.en. Here, words are converted into characters (e.g., the spoken word "period" or "dot" is converted to the character ".").
+Structure of a Macro
+A command consists of four central sections:
+
+   1. Trigger (Activation word):
+   * Upper and lower case are ignored.
+      * Placeholders: Use .* as a wildcard (e.g., turn on .*ight.*, in case the system misinterprets "light" as "night").
+      * Grouping: Multiple words can be grouped in parentheses with | (Or): (turn|on) on (light|lamp).
+      * not possible is (table lamp) better:  
+      	"(on|turn.*) on (table|light) (light|lamp)" - it reacts to "table lamp on" or "light on" or "turn on table lamp" or "on light" or "turn on (the) table lamp"
+      	the number of words must match. Unfamiliar words are ignored or filtered out, so they can be included without issue. 
+      	The important thing is that the keywords are present within a spoken sentence.
+      	If you say, "Please turn the light on right now; otherwise, I can't see anything," that is also correct, as it includes the words "light" and "on."
+      	Word:
+      	  1 or 1      1    2  or 2       2  or 3
+      	"(on|turn.*) on (table|light) (light|lamp)"
+      	
+   2. Terminal_Command:
+   * Standard terminal commands or scripts are entered here.
+      * Parameters such as spoken numbers can be passed directly (e.g., for temperature control via MQTT).
+   3. Intern_Command:
+   * spell: Activates spelling mode (automatically removes spaces).
+      * repeat: Repeats commands or scripts multiple times.
+      * calc: Performs mathematical calculations with recognized numbers.
+      * puncture: Activates automatic punctuation (can be overridden with priority via {nopuncture} in speech-replace.en).
+   4. TTS (Text-to-Speech / Voice Output):
+   * Determines what the PC replies after executing the command. Variables can be used here for confirmation.
+
+Special Modes: Direct & Dictation
+
+* Direct Mode (Without Wake-Word): If another file (e.g., screengrid.en) is specified in intern_command, MiceSt switches to this mode. Commands are now executed directly without the word "Computer". The mode ends as soon as the wake-word is spoken again.
+* Dictation Mode: If a file with the ending -write.en (e.g., dictationmode-write.en) is called, everything spoken is written directly as text. Note: Currently, only lowercase letters are possible here.
+
+Internal Variables
+
+* {last_spoken_text}: Passes everything said after the trigger (ideal for "Write the text...").
+* {last_spoken_number}: Extracts the last number from a sentence (integers or decimals) and converts it into a numerical value.
+* {last_spoken_numeral}: Captures single digits from 0 to 9 (important for dictation mode or PIN entries).
+
+Important Practical Tips
+
+* Hierarchy: Short commands must always be placed after longer, similar commands (e.g., 1. "Close window now", 2. "Close window").
+* Timing: While a command is being executed, no new triggers are accepted. If the system does not understand an input, the window remains active for 10 seconds before the wake-word is needed again.
+* Management: Use the terminal tool edit-macro.py to conveniently edit triggers.
+
+Example Entry:
+
+category: Smart Home
+comment: Living room heating control
+trigger: living room temp.* to
+terminal_command: mosquitto_pub -h x.x.x.x -m 'set' -t 'home/klima/{last_spoken_number}'
+tts: The living room is being heated to {last_spoken_number} degrees.
+
+
+___________________________________________________________________________________________________________________________________________________________________________________________________
+
+
+category: Key commands
+comment: 
+trigger: write.*
+terminal_command: xdotool type --delay 20 '{last_spoken_text}'
+intern_command: puncture
+tts: 
+
+
+let's get started, from here on some voice commands are already ready:
+
+- every digit listed in number-replace.en will be written out!
+category: Key commands
+comment: 
+trigger: writ.* digit.*
+terminal_command: xdotool type --delay 100 {last_spoken_numeral}
+intern_command:
+tts:
+
+- all numbers, including numbers not listed in number-replace.en, will be written
+category: Key commands
+comment: 
+trigger: writ.* number.*
+terminal_command: xdotool type --delay 100 {last_spoken_number}
+intern_command:
+tts:
+
+category: Help
+comment: 
+trigger: General help
+terminal_command: libreoffice --view -o "/opt/micesttm/Help/Handbuch-Manuel-de.odt"
+intern_command: 
+tts: 
+--------------------------
+
+
+Letter Processing 4 Commands
+----------------------------
+- scan
+- read aloud
+- show directory
+- show letter
+
+
+category: Letter
+comment: 
+trigger: Help (.*etter.*|scan.*)
+terminal_command: 
+intern_command: 
+tts: There are 4 options.  1. Say, read or scan letter, and the letter will be scanned and read aloud.  2. Say, show letter directory, and the file manager with the files will be displayed.  3. Say, read letter again, and the letter text will be read aloud again without scanning.  4. Say, show letter or scan, and the inverted image will be displayed.
+
+category: Letter
+comment: Show the directory containing the letter using the file manager
+trigger: show (.*etter dir.*|scan.* dir.*)
+terminal_command: nemo $HOME/MiceStTM/letter
+intern_command: 
+tts: Letter directory has been opened with the file manager
+
+category: Letter
+comment: Read letter audio file aloud again
+trigger: read (scan.*|.*etter.*) again
+terminal_command: xterm -e mplayer $HOME/MiceStTM/letter/text.txt.wav
+intern_command: 
+tts: 
+
+- show inverted letter/scan
+category: Letter
+comment: 
+trigger: (show|display) (scan.*|.*etter.*)
+terminal_command: eog $HOME/MiceStTM/letter/letter_invert_and_rotated.png -fg
+intern_command: 
+tts: "The letter is displayed in full screen using the image viewer. The size can be changed with the mouse wheel or plus and minus. The position can be adjusted by dragging with the mouse or using Control and arrow keys! If you only press the arrow key, you will automatically switch to the next document!"
+
+category: Letter	
+comment: 
+trigger: (.*ead.*|scan.*) .*etter.*
+terminal_command: python3 /opt/micesttm/read-aloud/scanner.py
+intern_command: 
+tts: The letter from the scanner is being read aloud. Please wait!
+
+--------------------------
+
+
+Restart or stop speech recognition
+----------------------------------
+
+category: Speech recognition
+comment: 
+trigger: (stop|quit|close) speech.*
+terminal_command: sleep 5 && /opt/micesttm/speechrecognition/mice_sttm.py
+intern_command:
+tts: Speech recognition is shutting down.
+
+category: Speech recognition
+comment: 
+trigger: (restart|start) speech.*
+terminal_command: /opt/micesttm/speechrecognition/mice-restart.sh
+intern_command: 
+tts: Speech recognition is restarting
+--------------------------
+
+category: System commands
+comment: 
+trigger: (st.*|run|open) (file manager.*|nemo.*)
+terminal_command: nemo
+intern_command:
+tts:
+--------------------------
+
+
+Example for Teamspeak
+---------------------
+category: Programs
+comment: 
+trigger: st.* Team.* speak.*
+terminal_command: $HOME/Teamspeak/TeamSpeak
+intern_command:
+tts: Starting Teamspeak
+--------------------------
+
+
+to install MX Linux from USB to HD
+----------------------------------
+
+category: System commands
+comment: 
+trigger: Shut down.*
+terminal_command: 
+intern_command:
+tts: Press the Windows key and the red button at the bottom left. Press the Enter key or say key Enter
+--------------------------
+
+
+Microphone Settings
+
+category: Microphone
+comment: 
+trigger: mic.* auto.*
+terminal_command: /opt/micesttm/speechrecognition/autogain.sh & cinnamon-settings sound -t 1 & (sleep 5  && pkill -f cinnamon-settings)
+intern_command: 
+tts: Microphone auto gain has been toggled, calling it again turns this on or off
+
+category: Microphone
+comment: 
+trigger: mic.* sett.*
+terminal_command: cinnamon-settings sound -t 1
+intern_command:
+tts: Microphone settings menu has been started
+--------------------
+
+Press Return/Enter key
+----------------------
+- to write letters, texts, and create new paragraphs
+
+category: Key commands
+comment: 
+trigger: (new|key|mail|letter) (send|enter|paragraph)
+terminal_command: xdotool key Return
+intern_command: repeat
+tts: 
+--------------------
+
+Internal function to calculate numbers up to one decimal place
+--------------------------------------------------------------
+category: Internet
+comment: 
+trigger: .*weath.* (with|in) firefox
+terminal_command: firefox https://www.wetter.com/xxxx/xxxx/xxxx.html
+intern_command: 
+tts: Firefox with Wetter.com has been started for region xxxx.
+--------------------
+
+
+Launch webcams directly with Firefox
+-------------------------------------
+category: Webcams
+comment: 
+trigger: (webcam.*) münster
+terminal_command: firefox https://weltcam.com/647-dacher-und-kirchen-von-munster-deutschland.html
+intern_command: 
+tts: Here is the webcam with a view of the Aasee
+--------------------
+
+
+Control Tasmota or MQTT devices
+-------------------------------
+example:
+#category: Bluetti 200MAX
+#comment: Switch Bluetti AC200MAX
+#trigger: (turn on|switch on) (inver.*|.*power.*)
+#terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -t Bluetti/Schalten -m ON
+#intern_command: 
+#tts: The inverter has been turned on!
+
+category: Help
+comment: 
+trigger: (help) (no.*) (power)
+terminal_command: 
+intern_command: 
+tts: You need to turn on the inverter. Say turn on inverter
+--------------------
+- Shelly
+category: Shelly
+comment: 
+trigger: (.*show.*|.*display.*) curr.* .*consum.*
+terminal_command: firefox xxx.xxx.xxx.xx
+intern_command: 
+tts: Here is the current consumption
+
+Ceiling lamp
+------------
+category: Tasmota Lamp
+comment: Switch Tasmota device
+trigger: (on|turn.*) on (table|light) (light|lamp)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+on
+intern_command: 
+tts: The floor lamp has been turned on!
+--------------------
+category: Tasmota Lamp
+comment: Switch Tasmota device
+trigger: (torn|off) off (lamp|light)
+terminal_command: curl http://xxx.xxx.xxx.xx/cm?cmnd=Power+off
+intern_command: 
+tts: The floor lamp has been turned off!
+
+
+Outdoor lighting
+----------------
+category: Shelly Lamp
+comment: Switch Shelly device
+trigger: on (outdoor.*|outside.*) light for
+terminal_command: curl "http://xxx.xxx.xxx.xx/relay/0?turn=on&timer={last_spoken_number}"
+intern_command: 
+tts: The outdoor lighting has been turned on for {last_spoken_number} seconds
+
+------
+
+- Switch TV via Broadlink IR transmitter
+  the commands for this are located, for example, on a Raspberry Zero
+ 
+category: TV
+comment: Switch TV with remote control
+trigger: turn (on|off|switch) tv.*
+terminal_command: curl -m 2 "http://xxx.xxx.xxx.xx/cm?cmnd=Power+on" && mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/power'
+intern_command:
+tts: The TV has been switched
+
+
+category: TV
+comment: Switch TV with remote control
+trigger: (on|play.*|star.*) (amazon|prime)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/Fernseher/prime'
+intern_command: 
+tts: Amazon Prime is turning on
+
+
+--------------------
+
+category: Help
+comment: Help living room temperature
+trigger: (it|i) (is|am) cold
+terminal_command:
+intern_command:
+tts: Say for example: living room temperature to 15 degrees. Check if the boiler is turned on. Or turn on the air conditioning by saying turn on air conditioning
+--------------------
+category: Tasmota
+comment: Turn off multiple devices at the same time
+trigger: i am leav.*
+terminal_command: curl http://xxx.xxx.xxx.xxx/relay/0?turn=off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off http://xxx.xxx.xxx.xxx/cm?cmnd=Power+off
+intern_command: 
+tts: Living room light, floor lamp, hotplate, and the TV have been turned off! See you soon!
+
+
+With an ESP EASY you can implement heating thermostats,
+which can easily be controlled via the network!
+------------------------------------------------------------
+
+category: ESP Easy
+comment: Control variables via Espeasy
+trigger: (heat.*|living.*|boiler) to
+terminal_command: curl xxx.xxx.xxx.22/tools?cmd=taskvalueset,7,1,{last_spoken_number}
+intern_command: 
+tts: Living room temperature has been changed to {last_spoken_number} degrees
+---------
+
+
+category: Air conditioning
+comment: Control air conditioning via remote control
+trigger: (ac|air) con.* (heat.*)
+terminal_command: mosquitto_pub -h xxx.xxx.xxx.xxx -m 'replay' -t 'broadlink/klima/auto/heat/{last_spoken_number}'
+intern_command:
+tts: Living room is being heated to {last_spoken_number} degrees with the air conditioning!
+...
+--------------------
+
+category: Internet Radio
+comment: Play Internet Radio 1 Live
+trigger: (play|turn on) radio
+terminal_command: cvlc https://wxxxxxr/xxx/mp3/128/xxx.mp3
+intern_command: 
+tts: yeah
+
+
+Announce time:
+--------------
+category: Announcements
+comment: Announce time
+trigger: (what|tell.*|how) (late|time|clock.*)
+terminal_command: echo it is `date "+%H %M"` | piper --model /opt/micesttm/voice/en_US-kathleen-low.onnx --output-file /dev/shm/say.wav && mpv --no-config --really-quiet --no-video --no-input-terminal --audio-channels=mono --speed=1.2 '/dev/shm/say.wav'
+intern_command: 
+tts: 
+--------------------
+
+
+Adjust speakers
+---------------
+
+category: System commands
+comment: Adjust volume
+trigger: .*volum.* (to|percent) 
+terminal_command: amixer set Master {last_spoken_number}%
+intern_command:
+tts: Okay
+
+category: System commands
+comment: Speakers off
+trigger: (sound|speaker.*) off
+terminal_command: pactl- set-sink-mute 0 1
+intern_command: 
+tts: Okay
+
+category: System commands
+comment: Speakers on
+trigger: (sound|speaker.*) on
+terminal_command: pactl- set-sink-mute 0 0
+intern_command: 
+tts: Okay
+--------------------
+category: Programs
+comment: youtube
+trigger: (st.*|run.*) youtube
+terminal_command: firefox www.youtube.com
+intern_command: 
+tts: youtube has started
+--------------------
+category: Programs
+comment: Office
+trigger: (start|run|open|st.*) libreoffice (.*iter.*)
+terminal_command: libreoffice -writer
+intern_command: 
+tts: libre office writer has been launched
+--------------------
+
+
+Control Firefox functions by voice
+----------------------------------
+
+category: Programs
+comment: Firefox
+trigger: (show|display) firefox
+terminal_command: xdotool search "Mozilla Firefox" windowactivate
+intern_command: 
+tts: ok
+
+category: Programs
+comment: 
+trigger: (start|run|open) firefox with
+terminal_command: firefox '{last_spoken_text}'
+intern_command:
+tts:
+
+category: Programs
+comment: 
+trigger: (start|run|open) firefox
+terminal_command: firefox '{last_spoken_text}'
+intern_command:
+tts:
+
+category: Control Firefox
+comment: 
+trigger: firefox new.* tab
+terminal_command: xdotool key ctrl+t
+intern_command: 
+tts: new Firefox tab has been created
+
+category: Control Firefox
+comment: 
+trigger: firefox bookmark.*
+terminal_command: xdotool key ctrl+d
+intern_command: 
+tts: Confirm or remove bookmark?
+
+category: Control Firefox
+comment: 
+trigger: remove bookmark.*
+terminal_command: xdotool key alt+e
+intern_command: 
+tts: the bookmark has been removed
+
+category: Control Firefox
+comment: 
+trigger: firefox page back
+terminal_command: xdotool key alt+113
+intern_command: 
+tts: one page back
+
+category: Control Firefox
+comment: 
+trigger: firefox page forward
+terminal_command: xdotool key alt+114
+intern_command: 
+tts: one page forward
+
+category: Control Firefox
+comment: 
+trigger: firefox reload.* page
+terminal_command: xdotool key F5
+intern_command: 
+tts:
+
+category: Control Firefox
+comment: 
+trigger: close.* firefox tab.*
+terminal_command: xdotool key ctrl+w
+intern_command: 
+tts: ok
+--------------------
+
+
+To bring a window to the front
+------------------------------
+category: System commands
+comment: Bring window to front
+trigger: show.* (the|program|window)
+terminal_command: wmctrl -a  "{last_spoken_text}"
+intern_command: 
+tts: ok
+--------------------
+
+
+Smaller Screen Helpers
+----------------------
+
+category: System commands
+comment: Invert window
+trigger: inver.* (scree.*|windo.*)
+terminal_command: xdotool key Super+i
+intern_command:
+tts: Invert window
+
+
+category: System commands
+comment: Inverter under mouse cursor
+trigger: (start|show.*) (invert.*)
+terminal_command: python3 $HOME/Barrierefreiheit/read-aloud/screen_invert.py --topmost --cursor_size=11 --window_with_mouse --mouse_cursor
+intern_command:
+tts: Screen is inverted in a small window under the mouse cursor.
+
+category: System commands
+comment: Turn off inverter
+trigger: (off|stop) (inver.*)
+terminal_command: pkill -f screen_invert.py
+intern_command:
+tts: Screen inverter is off.
+--------------------
+Mouse click by screen grid
+
+category: System commands
+comment: Screen grid
+trigger: show (grid|raster)
+terminal_command: /opt/micesttm/read-aloud/screen_grid.py & sleep 1 && xdotool search --name "screen grid" windowactivate
+intern_command: screengrid
+tts: Screen grid for mouse click has been selected.
+
+category: System commands
+comment: 
+trigger: (stop|off|hide) screen (grid|raster)
+terminal_command: pkill -f screen_grid.py
+intern_command:
+tts: Screen grid has been turned off
+
+Mouse functions, movements
+--------------------------
+category: System commands
+comment: Change mouse cursor size
+trigger: (change|set.*) (mouse|mouse) size
+terminal_command: dconf-editor /org/cinnamon/desktop/interface/cursor-size & sleep 2 && xdotool key Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab Tab
+intern_command:
+tts: Change the size of the mouse cursor. Say click on Apply to confirm the changed size. The value is at the bottom center and can be changed directly by entering numbers. The default at installation is 60
+
+category: System commands
+comment: Change mouse cursor size
+trigger: (small.*) (pointer|cursor)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 30
+intern_command:
+tts: small mouse cursor set
+
+category: System commands
+comment: Set mouse cursor to medium size
+trigger: (medi.*) (pointer|cursor)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 45
+intern_command:
+tts: medium mouse cursor set
+
+category: System commands
+comment: Set mouse cursor to very large
+trigger: (very|extra) large (pointer|cursor)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 100
+intern_command:
+tts: very large mouse cursor set
+
+category: System commands
+comment: Set mouse cursor to large
+trigger: (larg.*) (pointer|cursor)
+terminal_command: dconf write /org/cinnamon/desktop/interface/cursor-size 60
+intern_command:
+tts: large mouse cursor set
+
+category: Mouse commands
+comment: Move mouse to a specific position
+trigger: mouse.* to
+terminal_command: /opt/micesttm/speechrecognition/mousetotext  "{last_spoken_text}"
+intern_command: 
+tts: Mouse has been moved to {last_spoken_text}
+
+category: Mouse commands
+comment: 
+trigger: click on
+terminal_command: /opt/micesttm/speechrecognition/mousetotext "{last_spoken_text}" && xdotool click 1
+intern_command: 
+tts: {last_spoken_text} has been selected!
+
+category: Mouse commands
+comment: 
+trigger: mouse.* to.* left.*
+terminal_command: xdotool mousemove_relative -- -{last_spoken_number} 0
+intern_command:
+tts: okay
+
+category: Mouse commands
+comment: 
+trigger: mouse to.* right.*
+terminal_command: xdotool mousemove_relative {last_spoken_number} 0
+intern_command:
+tts:
+
+category: Mouse commands
+comment: 
+trigger: mouse.* up.*
+terminal_command: xdotool mousemove_relative -- 0 -{last_spoken_number}
+intern_command:
+tts: okay
+
+category: Mouse commands
+comment: 
+trigger: mouse down
+terminal_command: xdotool mousemove_relative 0 {last_spoken_number} 
+intern_command:
+tts:
+
+category: Mouse commands
+comment: 
+trigger: mouse left click
+terminal_command: xdotool click 1 
+intern_command: 
+tts:
+
+category: Mouse commands
+comment: 
+trigger: mouse double click
+terminal_command: xdotool click 1 sleep 0.1 click 1 
+intern_command: 
+tts:
+
+category: Mouse commands
+comment: 
+trigger: mouse right click
+terminal_command: xdotool click 3 
+intern_command: 
+tts:
+
+category: Mouse commands
+comment: 
+trigger: mouse middle click
+terminal_command: xdotool click 2 
+intern_command: 
+tts:
+
+
+category: Mouse commands
+comment: 
+trigger: Help mouse
+terminal_command: 
+intern_command: 
+tts: There are at least 4 options: 1. Say mouse to File and the mouse moves to File. 2. Say click on File and the mouse clicks on File. 3. Say mouse left click, right click, double, or middle click. 4. Say mouse left or up or down or right 100 pixels.
+
+category: Mouse commands
+comment: 
+trigger: mouse select.* from
+terminal_command: /opt/micesttm/speechrecognition/mousemarkfrom '{last_spoken_text}'
+intern_command: 
+tts: Words can be selected starting from {last_spoken_text}!
+
+category: Mouse commands
+comment: 
+trigger: mouse select.* until
+terminal_command: /opt/micesttm/speechrecognition/mousemarkuntil '{last_spoken_text}'
+intern_command: 
+tts: Words have been selected up to {last_spoken_text}!
+
+category: Mouse commands
+comment: 
+trigger: mouse select.* words
+terminal_command: /opt/micesttm/speechrecognition/mousemarkseveralwords '{last_spoken_text}'
+intern_command: 
+tts: Words {last_spoken_text} have been selected!
+# Note: never use tts: Words '{last_spoken_text}' have been selected! (do not use the ' characters)
+
+--------------------
+category: Key commands
+comment: 
+trigger: key delet.*
+terminal_command: xdotool key BackSpace
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (key|do) undo.*
+terminal_command: xdotool key ctrl+z
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (key|do) redo.*
+terminal_command: xdotool key ctrl+y
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: select.* to.* right.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts: 
+--------------------
+category: Key commands
+comment: 
+trigger: select.* to.* left.*
+terminal_command: xdotool key shift+Left
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: mark.* to.* right.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: mark.* to.* left.*
+terminal_command: xdotool key --delay 20 shift+Left
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: select.* up
+terminal_command: xdotool key shift+Up
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: select.* down
+terminal_command: xdotool key shift+Down
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: select.* until .*start.*
+terminal_command: xdotool key shift+110
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: select.* until .*end.*
+terminal_command: xdotool key shift+115
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: line start
+terminal_command: xdotool key 110
+intern_command: 
+tts:
+
+category: Key commands
+comment: 
+trigger: .*ump.* line start
+terminal_command: xdotool key 110
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: line .*end.*
+terminal_command: xdotool key 115
+intern_command: 
+tts:
+
+category: Key commands
+comment: 
+trigger: .*ump.* line end
+terminal_command: xdotool key 115
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: delete key
+terminal_command: xdotool key 119
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (key.*|to) up
+terminal_command: xdotool key Up
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (key.*|to) do.*
+terminal_command: xdotool key Down
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (key.*|to) left.*
+terminal_command: xdotool key Left
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (key.*|to) right.* 
+terminal_command: xdotool key Right
+intern_command: repeat
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: (escape.*)
+terminal_command: xdotool key Escape
+intern_command: 
+tts: 
+--------------------
+category: Key commands
+comment: 
+trigger: (quit.*|close.*) (program.*|window.*)
+terminal_command: xdotool key alt+F4
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: don't save
+terminal_command: xdotool key ctrl+n
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: 
+trigger: save.* (docum.*|sheet|key.*|now|image|code|it|this)
+terminal_command: xdotool key ctrl+s
+intern_command: 
+tts: Saving has been completed
+--------------------
+
+Tailored for LibreOffice
+category: Key commands 
+comment: 
+trigger: save as
+terminal_command: xdotool key shift+ctrl+s
+intern_command: 
+tts:
+--------------------
+
+
+Bring LibreOffice Writer to the front
+-------------------------------------
+category: Libreoffice
+comment: 
+trigger: .*show.* libreoffice
+terminal_command: xdotool search --name 'writer' windowactivate
+intern_command:
+tts:
+--------------------
+#trigger: close libreoffice writer
+#terminal_command: xdotool search --onlyvisible 'Libreoffice writer' windowactivate key alt+F4
+#intern_command: 
+#tts:
+--------------------
+category: Key commands
+comment: 
+trigger: select all
+terminal_command: xdotool key ctrl+a
+intern_command: 
+tts:
+--------------------
+
+--------------------
+category: Key commands
+comment: 
+trigger: copy
+terminal_command: xdotool key ctrl+c
+intern_command: 
+tts: Selections copied to clipboard
+--------------------
+category: Key commands
+comment: 
+trigger: paste
+terminal_command: xdotool key ctrl+v
+intern_command: 
+tts: Pasted content from clipboard
+--------------------
+category: Key commands
+comment: 
+trigger: copy all
+terminal_command: xdotool key ctrl+a key ctrl+c
+intern_command: 
+tts:
+--------------------
+category: Key commands
+comment: Search
+trigger: search for
+terminal_command: xdotool key ctrl+f type "{last_spoken_text}" && xdotool key Return
+intern_command:  
+tts:  
+
+--------------------
+category: Key commands
+comment: 
+trigger: jump.* (.*end of sentence.*)
+terminal_command: xdotool key ctrl+f type '.' ; xdotool key Return
+intern_command: 
+tts:
+--------------------
+category: Messenger Telegram
+comment: 
+trigger: start telegram
+terminal_command: telegram-desktop && xdotool search --onlyvisible "telegram" windowactivate
+intern_command: 
+tts:
+--------------------
+
+Telegram functions, like Signal functions
+------------------------------------------
+category: Messenger Telegram
+comment: Telegram is started and then searched for a name
+trigger: telegram search
+terminal_command: xdotool sleep 1 key Escape key ctrl+f type '{last_spoken_text}'
+intern_command:
+tts:
+
+category: Messenger Telegram
+comment: 
+trigger: telegram to
+terminal_command: xdotool search --onlyvisible "telegram" windowactivate  &&  xdotool sleep 1 key Escape key ctrl+f type '{last_spoken_text}'; xdotool sleep 1 key Return
+intern_command:
+tts:
+
+category: Messenger Signal
+comment: 
+trigger: (signal) search
+terminal_command: xdotool sleep 1 key Escape key ctrl+f type '{last_spoken_text}'
+intern_command: 
+tts: 
+
+category: Messenger Signal
+comment: 
+trigger: (signal) to
+terminal_command: 'signal-desktop' & xdotool key Escape sleep 1 key ctrl+f type --delay 40 '{last_spoken_text}'; xdotool sleep 1 key Return
+intern_command: 
+tts: 
+
+category: Messenger Signal
+comment: 
+trigger: st.* (signal)
+terminal_command: 'signal-desktop' & sleep 4 && xdotool sleep 1 key Escape sleep 1 key ctrl+f type --delay 40 '{last_spoken_text}'; xdotool sleep 1 key Return
+intern_command: 
+tts: 
+
+--------------------
+
+
+Copy selected text to clipboard and then read aloud!
+----------------------------------------------------
+category: Read aloud
+comment: 
+trigger: (.*lipboard.*|select.*) (.*ead.*|aloud.*)
+terminal_command: /opt/micesttm/read-aloud/clipboard.py
+intern_command:
+tts: Please wait!
+
+--------------------
+category: System commands
+comment: 
+trigger: (creat.*|tak.*|mak.*) (screenshot.*|screen.*)
+terminal_command: scrot $HOME/Picture/'%Y-%m-%d.png'
+intern_command:
+tts: Screenshot has been created
+
+category: Read aloud
+comment: 
+trigger: (read aloud) (screen area)
+terminal_command: scrot -s $HOME/MiceStTM/read_aloud/screenshut.png
+intern_command: 
+tts: Select the area to be read aloud
+
+--------------------
+category: Read aloud
+comment: 
+trigger: (turn off|stop) read.* (behind|under.*) mouse.*
+terminal_command: pkill -f under-mouse-pointer.py
+intern_command:
+tts: Reading under mouse pointer is turned off
+
+category: Read aloud
+comment: 
+trigger: read.* (behind|under.*) mouse.*
+terminal_command: /opt/micesttm/read-aloud/under-mouse-pointer.py
+intern_command:
+tts: Reading under mouse pointer is turned on
+--------------------
+
+
+Monitor directory and read aloud copied images and text
+-------------------------------------------------------
+
+category: Read aloud
+comment: 
+trigger: (stop|turn off) (.*ead.*|.*watch.*) (direct.*|document)
+terminal_command: pkill -f file-watch-purge.py
+intern_command:
+tts: Shutdown of monitoring confirmed
+
+category: Read aloud
+comment: 
+trigger: (.*ead.*|.*watch.*) (direct.*|document|photo.*)
+terminal_command: python3 /opt/micesttm/read-aloud/file-watch-purge.py
+intern_command: 
+tts: The accessibility document directory is being monitored and all items copied into it will be read aloud and subsequently deleted
+--------------------
+
+
+System accessibility screen reader, magnifier, etc. from here on (Orca)
+
+- the following trigger is longer than the trigger to turn on reading aloud,
+  therefore this one must come first
+
+category: System commands
+comment: 
+trigger: (set.*|config.*) screen.* (read.*)
+terminal_command: orca -s
+intern_command:
+tts: Screen reader can be configured!
+
+- Turn off screen reader
+category: System commands
+comment: 
+trigger: (off|stop) screen.* (.*read.*)
+terminal_command: pkill orca
+intern_command:
+tts: Screen reader is turned off!
+
+- Turn on screen reader
+category: System commands
+comment: 
+trigger: screen.* (read.*)
+terminal_command: orca
+intern_command:
+tts: Screen reader is turned on!
+--------------------
+
+- Configure accessibility
+category: System commands
+comment: 
+trigger: (set.*|config.*) accessib.*
+terminal_command: cinnamon-settings universal-access
+intern_command:
+tts: Accessibility can be configured!
+--------------------
+
+- Zoom in / enlarge screen
+category: System commands
+comment: 
+trigger: (in|enlarg.*) (image.*|screen|monitor)
+terminal_command: xdotool key super+alt+plus
+intern_command: repeat
+tts: Screen has been zoomed in!
+--------------------
+- Zoom out / shrink screen
+category: System commands
+comment: 
+trigger: (shrink.*|out) (image.*|screen|monitor)
+terminal_command: xdotool key super+alt+minus
+intern_command: repeat
+tts: Screen has been zoomed out!
+--------------------
+
+category: Writing
+comment: Dictation mode
+trigger: (on|start.*) dictat.*
+terminal_command: 
+intern_command: dictationmode_write
+tts: Dictation mode is running
+
+
+category: edit macros
+comment: edit macros here
+trigger: (add|edit) ma.*
+terminal_command: /opt/micesttm/speechrecognition/MiceStTM-Editor.gambas
+intern_command: 
+tts: The macro editor has been started!
+
+
+category: Writing
+comment: Spelling
+trigger: spell.*
+terminal_command: xdotool type -delay 100 '{last_spoken_text}'
+intern_command: spell
+tts:
+
+from here on only one-word triggers
+----------------------------
+category: System commands
+comment: 
+trigger: Magnifier
+terminal_command: cinnamon-settings universal-access
+intern_command:
+tts: Accessibility can be configured!
+--------------------
+category: Tools
+comment: 
+trigger: .*calc.*
+terminal_command: 
+intern_command: calc
+tts: The result is {last_spoken_number}
+--------------------
+category: Key commands
+comment: Select text passage
+trigger: select
+terminal_command: xdotool key --delay 40 ctrl+f type --delay 40 '{last_spoken_text}'; xdotool key Return; xdotool sleep 0.1 key Escape
+intern_command:
+tts:
+--------------------
+category: System commands
+comment: Increase volume by 20%
+trigger: louder.*
+terminal_command: amixer set Master 20%+
+intern_command: 
+tts: Okay
+--------------------
+category: System commands
+comment: Decrease volume by 20%
+trigger: quieter.*
+terminal_command: amixer set Master 20%-
+intern_command: 
+tts: Okay
+--------------------
+
+--------------------
+Press Return/Enter key
+----------------------
+- to write letters, texts, and create new paragraphs
+
+category: Key commands
+comment: Press Return Enter key
+trigger: (send|enter|paragraph)
+terminal_command: xdotool key Return
+intern_command: 
+tts: 
+-------------------------------------
+category: Key commands
+comment: Press Escape key
+trigger: (close)
+terminal_command: xdotool key Escape
+intern_command: 
+tts: 
+
+category: Roller shutters
+comment: Open patio
+trigger: (open) (patio) (shutter.*|blind.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open
+intern_command: 
+tts: The patio roller shutter is opening
+-----------------------
+category: Roller shutters
+comment: Close patio
+trigger: (close) (patio) (shutter.*|blind.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close
+intern_command: 
+tts: The patio roller shutter is closing
+-----------------------
+category: Roller shutters
+comment: Close street
+trigger: (close) (street) (shutter.*|blind.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close
+intern_command: 
+tts: The street roller shutter is closing
+-----------------------
+category: Roller shutters
+comment: Open street
+trigger: (open) (street) (shutter.*|blind.*)
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open
+intern_command: 
+tts: The street roller shutter is opening
+-----------------------
+category: Roller shutters
+comment: Close street
+trigger: good morning
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open; curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=open
+intern_command: 
+tts: Good morning
+-----------------------
+category: Roller shutters
+comment: good night
+trigger: good night
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close; curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=close
+intern_command: 
+tts: Good night, sleep well
+-----------------------
+category: Roller shutters
+comment: Stop roller shutters
+trigger: stop shutter.*
+terminal_command: curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=stop; curl -X POST http://xxx.xxx.xxx.xx/roller/0?go=stop
+intern_command: 
+tts: The roller shutters have been stopped
+-----------------------
+category: Roller shutters
+comment: Roller shutter to position
+trigger: patio (shutter.*|blind.*) to
+terminal_command: curl -X POST -d '{"id":1,"method":"Cover.GoToPosition","params":{"id":0,"pos":{last_spoken_number}}}' http://xxx.xxx.xxx.xx/rpc
+intern_command: 
+tts: The roller shutters have been set to {last_spoken_number}
+-----------------------
+category: Roller shutters
+comment: Roller shutter to position
+trigger: street (shutter.*|blind.*) to
+terminal_command: curl -X POST -d '{"id":1,"method":"Cover.GoToPosition","params":{"id":0,"pos":{last_spoken_number}}}' http://xxx.xxx.xxx.xx/rpc
+intern_command: 
+tts: The roller shutters have been set to {last_spoken_number}
+-----------------------
+category: all
+comment: Menu of the Caritas workshop
+trigger: (.*at|menu.*) (.*card|.*food|for|on|is|there)
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/cuttext.py {last_spoken_text} | piper-tts --model /opt/micesttm/voice/de/de_DE-thorsten-low.onnx --output-file menu.wav && /opt/micesttm/share/play.py menu.wav 1.2
+intern_command: 
+tts: 
+-----------------------
+category: Tasmota
+comment: add tasmota
+trigger: add.* socket.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/add_tasmota.sh {last_spoken_text}
+intern_command: 
+tts: 
+
+category: calling
+comment: make a call
+trigger: (call.*)
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/tel/call.sh {last_spoken_text}
+intern_command:
+tts:
+
+category: calling
+comment: hang up call
+trigger: hang up.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/tel/hang.sh
+intern_command:
+tts:
+
+category: calling
+comment: detect calls
+trigger: check.* incom.* call.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/tel/incoming.sh
+intern_command:
+tts:
+
+
+category: calling
+comment: answer calls
+trigger: answer.* call.*
+terminal_command: /home/xxxxxx/MiceStTM/PlugIns/tel/accept.sh
+intern_command: 
+tts: 
+
+
+category: Microphone
+comment: Set microphone gain
+trigger: increas.* mic.* sensitiv.*
+terminal_command: pactl set-source-volume @DEFAULT_SOURCE@ +10%
+intern_command: 
+tts: ok +10
+-----------------------
+category: Microphone
+comment: Set microphone gain
+trigger: mic.* sensitiv.* t.*
+terminal_command: pactl set-source-volume @DEFAULT_SOURCE@ {last_spoken_number}%
+intern_command: 
+tts: ok {last_spoken_number} percent
+-----------------------
+category: all
+comment: 
+trigger: reb.* system
+terminal_command: reboot
+intern_command: 
+tts: 
+-----------------------

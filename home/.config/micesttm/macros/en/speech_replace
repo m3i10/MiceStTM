@@ -1,0 +1,132 @@
+# Translate commands that are rarely understood correctly after (->)
+# Comments after #
+
+# Here is the explanation of internal variables like {space} {delspace} and {->}...
+# {space}: to insert a space
+# {delspace}: do not write a space, or remove the last space
+# {->}: this creates (->) itself.
+
+# \n: new line
+# {nopuncture}: do not write punctuation marks
+
+# general
+convert to(->){->}{nopuncture}
+stared(->)start
+starts(->)start
+state(->)start
+starter(->)start
+
+# Text
+#
+
+louder(->)volume
+loud er(->)volume
+
+insert comma(->){delspace},
+comma sign(->){delspace},
+insert period(->){delspace}.
+insert dot(->){delspace}.
+period sign(->){delspace}.
+colon(->){delspace}:
+comma(->){delspace},
+
+period(->).
+dot(->).
+Www.(->)www.{delspace}
+www.(->)www.{delspace}
+World wide Web(->)www{delspace}
+C o m(->){delspace}com
+C o m,(->){delspace}com,
+C o m?(->){delspace}com?
+C o m.(->){delspace}com.
+
+an address(->)my address
+my address(->)M3i10\nMustermannstreet 1\nXxX2 Bottrup\n{nopuncture}{delspace}
+my phone number(->)my phone number
+my phone number(->)0123456789{nopuncture}
+new line(->)\n{delspace}
+space(->){space}
+
+write a(->)write one
+write.(->)write .
+semicolon(->){delspace};
+hyphen(->)-
+dash(->)-
+underscore(->)_
+question mark(->){delspace}?
+exclamation mark(->){delspace}!
+dollar sign(->)$
+backslash(->)\
+slash(->)/
+forward slash(->)/
+ampersand(->) &
+and sign(->) &
+percent sign(->) %
+quotation marks(->)"
+open parentheses(->)open parenthesis
+close parentheses(->)close parenthesis
+open curly bracket(->){
+close curly bracket(->)}
+open square bracket(->)[
+close square bracket(->)]
+open parenthesis(->)(
+close parenthesis(->))
+pipe sign(->)|
+or sign(->)|
+
+
+#Spelling
+lowercase a(->)a{delspace}
+lowercase b(->)b{delspace}
+lowercase c(->)c{delspace}
+lowercase d(->)d{delspace}
+lowercase s(->)s{delspace}
+lowercase e(->)e{delspace}
+lowercase f(->)f{delspace}
+lowercase g(->)g{delspace}
+lowercase h(->)h{delspace}
+lowercase i(->)i{delspace}
+lowercase j(->)j{delspace}
+lowercase k(->)k{delspace}
+lowercase l(->)l{delspace}
+lowercase m(->)m{delspace}
+lowercase n(->)n{delspace}
+lowercase o(->)o{delspace}
+lowercase p(->)p{delspace}
+lowercase q(->)q{delspace}
+lowercase r(->)r{delspace}
+lowercase t(->)t{delspace}
+lowercase u(->)u{delspace}
+lowercase v(->)v{delspace}
+lowercase w(->)w{delspace}
+lowercase x(->)x{delspace}
+lowercase y(->)y{delspace}
+lowercase z(->)z{delspace}
+
+uppercase a(->)A{delspace}
+uppercase b(->)B{delspace}
+uppercase c(->)C{delspace}
+uppercase d(->)D{delspace}
+uppercase e(->)E{delspace}
+uppercase f(->)F{delspace}
+uppercase g(->)G{delspace}
+uppercase h(->)H{delspace}
+uppercase i(->)I{delspace}
+uppercase j(->)J{delspace}
+uppercase k(->)K{delspace}
+uppercase l(->)L{delspace}
+uppercase m(->)M{delspace}
+uppercase n(->)N{delspace}
+uppercase o(->)O{delspace}
+uppercase p(->)P{delspace}
+uppercase q(->)Q{delspace}
+uppercase r(->)R{delspace}
+uppercase s(->)S{delspace}
+uppercase t(->)T{delspace}
+uppercase u(->)U{delspace}
+uppercase v(->)V{delspace}
+uppercase w(->)W{delspace}
+uppercase x(->)X{delspace}
+uppercase y(->)Y{delspace}
+uppercase z(->)Z{delspace}
+

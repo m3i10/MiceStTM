@@ -1,0 +1,78 @@
+Version 0.1 Nov 24
+------------------
+
+trigger: to left.*
+terminal_command: xdotool mousemove_relative -- -{last_spoken_number} 0
+intern_command:
+tts:
+
+trigger: to right.*
+terminal_command: xdotool mousemove_relative {last_spoken_number} 0
+intern_command:
+tts:
+
+trigger: up
+terminal_command: xdotool mousemove_relative -- 0 -{last_spoken_number}
+intern_command:
+tts:
+
+trigger: down
+terminal_command: xdotool mousemove_relative 0 {last_spoken_number} 
+intern_command:
+tts:
+
+
+
+control: cancel
+trigger: (canc.*|quit.*)
+terminal_command: xdotool key Escape
+intern_command: macro
+tts: Screen grid deselected
+--------------------
+control: one
+trigger: one
+terminal_command: xdotool key 1
+intern_command:
+tts:
+--------------------
+control: two
+trigger: two
+terminal_command: xdotool key 2
+intern_command:
+tts:
+--------------------
+control: three
+trigger: three
+terminal_command: xdotool key 3
+intern_command:
+tts:
+--------------------
+control: four
+trigger: four
+terminal_command: xdotool key 4
+intern_command:
+tts:
+--------------------
+
+trigger: double.*
+terminal_command: xdotool key Escape click 1 sleep 0.1 click 1 
+intern_command: macro
+tts:
+
+
+trigger: left.*
+terminal_command: xdotool key Escape click 1 
+intern_command: macro
+tts:
+
+
+trigger: right.*
+terminal_command: xdotool key Escape click 3 
+intern_command: macro
+tts:
+
+trigger: middle.*
+terminal_command: xdotool key Escape click 2 
+intern_command: macro
+tts:
+

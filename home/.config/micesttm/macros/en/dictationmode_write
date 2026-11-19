@@ -1,0 +1,141 @@
+Version 0.2 / Okt. 26
+---------------------
+
+- to write letters, texts, and create new paragraphs
+
+--------------------
+trigger: (word|text.*|key.*) delet.*
+terminal_command: xdotool key BackSpace
+intern_command: repeat
+tts:
+--------------------
+trigger: (key|do) undo.*
+terminal_command: xdotool key ctrl+z
+intern_command: repeat
+tts:
+--------------------
+trigger: (key|do) redo.*
+terminal_command: xdotool key ctrl+y
+intern_command: repeat
+tts:
+--------------------
+trigger: select.* to.* right.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts: 
+--------------------
+trigger: select.* to.* left.*
+terminal_command: xdotool key shift+Left
+intern_command: repeat
+tts:
+--------------------
+trigger: mark.* to.* right.*
+terminal_command: xdotool key shift+Right
+intern_command: repeat
+tts:
+--------------------
+trigger: mark.* to.* left.*
+terminal_command: xdotool key --delay 20 shift+Left
+intern_command: 
+tts:
+--------------------
+trigger: select.* up
+terminal_command: xdotool key shift+Up
+intern_command: repeat
+tts:
+--------------------
+trigger: select.* down
+terminal_command: xdotool key shift+Down
+intern_command: repeat
+tts:
+--------------------
+trigger: select.* (to|until) .*start.*
+terminal_command: xdotool key shift+110
+intern_command: 
+tts:
+--------------------
+trigger: select.* (to|until) .*end.*
+terminal_command: xdotool key shift+115
+intern_command: 
+tts:
+--------------------
+trigger: (line start)
+terminal_command: xdotool key 110
+intern_command: 
+tts:
+--------------------
+trigger: jump.* end of line
+terminal_command: xdotool key 115
+intern_command: 
+tts:
+--------------------
+trigger: delete key
+terminal_command: xdotool key 119
+intern_command: 
+tts:
+--------------------
+trigger: (key.*) up
+terminal_command: xdotool key Up
+intern_command: repeat
+tts:
+--------------------
+trigger: (key.*) down
+terminal_command: xdotool key Down
+intern_command: repeat
+tts:
+--------------------
+trigger: (key.*) left.*
+terminal_command: xdotool key Left
+intern_command: repeat
+tts:
+--------------------
+trigger: (key.*|to) right.* 
+terminal_command: xdotool key Right
+intern_command: repeat
+tts:
+--------------------
+trigger: (escape.*)
+terminal_command: xdotool key Escape
+intern_command: 
+tts:
+
+--------------------
+trigger: select all
+terminal_command: xdotool key ctrl+a
+intern_command: 
+tts:
+--------------------
+trigger: copy content
+terminal_command: xdotool key ctrl+c
+intern_command: 
+tts: Selections copied to clipboard
+--------------------
+trigger: paste content
+terminal_command: xdotool key ctrl+v
+intern_command: repeat
+tts: Pasted content from clipboard
+--------------------
+trigger: copy all
+terminal_command: xdotool key ctrl+a key ctrl+c
+intern_command: 
+tts:
+--------------------
+trigger: search for
+terminal_command: xdotool key ctrl+f type '{last_spoken_text}'
+intern_command:
+tts:
+
+--------------------
+trigger: jump.* (.*end of sentence.*)
+terminal_command: xdotool key ctrl+f type '.' ; xdotool key Return
+intern_command:
+tts:
+--------------------
+
+category: Key commands
+comment:
+trigger: (new|key|mail|letter) (send|enter|paragraph)
+terminal_command: xdotool key Return
+intern_command: repeat
+tts:
+
