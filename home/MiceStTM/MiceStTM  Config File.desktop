@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MiceStTM
+Comment=MiceStTM Config
+Exec="/opt/micesttm/share/see micesttm.ini.sh"
+Icon=configuration
+Terminal=false
+Categories=Utility;Application;
+Name[de_DE]=MiceStTM  Config File 
