@@ -1,2 +1,0 @@
-linphonecsh generic "accept"
-
