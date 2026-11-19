@@ -1,0 +1,28 @@
+License Agreement
+
+This program and its associated plugins may be distributed and modified. Any modifications are subject to the following conditions:
+
+1.    Attribution: In the event of any modification to the original, the original program must be referenced, and the name of the original author must be stated.
+
+2.    Distribution: The program and its plugins may be published and distributed, either in their original or a modified form, provided that the conditions stated above are met.
+
+3.    Disclaimer of Liability: The original author assumes no liability for any damages or issues arising from the use of this software or any modifications thereof.
+
+4.    No Additional Restrictions: No further restrictions may be imposed that contradict the terms of this agreement.
+
+These conditions apply to all versions of the program and its plugins.
+
+Lizenzvereinbarung
+
+Dieses Programm und die dazugehörigen Plugins dürfen verbreitet und verändert werden. Bei jeder Art von Veränderung sind die folgenden Bedingungen zu beachten:
+
+1.    Urhebernennung: Bei jeglicher Veränderung des Originals muss auf das Originalprogramm verwiesen und der Name des ursprünglichen Autors genannt werden.
+
+2.    Verbreitung: Das Programm und seine Plugins dürfen in unveränderter oder veränderter Form veröffentlicht und verteilt werden, solange die oben genannten Bedingungen eingehalten werden.
+
+3.    Haftungsausschluss: Der Autor des Originals übernimmt keine Haftung für etwaige Schäden oder Probleme, die aus der Verwendung dieser Software oder ihrer Modifikationen entstehen.
+
+4.    Keine zusätzliche Einschränkungen: Es dürfen keine zusätzlichen Einschränkungen auferlegt werden, die die Bedingungen dieser Vereinbarung widersprechen.
+
+Diese Bedingungen gelten für alle Versionen des Programms und seiner Plugins.
+

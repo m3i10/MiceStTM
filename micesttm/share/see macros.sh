@@ -1,2 +1,2 @@
-nemo $HOME/.config/micesttm/macros/de
+nemo $HOME/.config/micesttm/macros
 

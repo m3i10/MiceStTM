@@ -1,6 +1,6 @@
 # small function to prevent a double start of the program
 # if a program is started repeatedly, all will be terminated
-# Version 0.3
+# Version 0.4
 import os
 import time
 
@@ -13,7 +13,8 @@ def program_name(name):
 	name_run = ram_cache_path + name + '_run'
 
 	if os.path.exists(name_run): 									# if a file/program is already running
-		os.remove(name_run) # das Run Signal löschen				# delete the run file/signal
+		os.remove(name_run)											# delete the run file/signal
+		print("this script is being terminated")
 		quit() 														# then exit the program
 	else:															# if the file does not exist
 		with open (name_run, 'w') as f:								# write file this program is running

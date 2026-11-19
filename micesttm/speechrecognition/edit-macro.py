@@ -5,51 +5,50 @@ import argparse
 
 parser = argparse.ArgumentParser(description="")
 
-# Füge Argumente hinzu
-
 parser.add_argument(
 	'-f', '--filename', type=str,
-	help='Makro Datei die bearbeitet werden soll') 			#
+	help='Macro file to be edited') 			#
 parser.add_argument(
 	'-o', '--overwrite',  action='store_true',
-	help='vorhandenen Sprachtrigger löschen und ersetzen') 	#
+	help='delete and replace existing voice trigger') 	#
 parser.add_argument(
 	'-u', '--update', action='store_true',
-	help='vorhandenen Sprachtrigger ergänzen')				#
+	help='append to existing voice trigger')				#
 parser.add_argument(
 	'-a', '--add', action='store_true',
-	help='neues Makro erstellen, benötigt min. -n')					#
+	help='create new macro, requires at least -n')					#
 parser.add_argument(
 	'-d', '--deltrigger', action='store_true',
-	help='lösche vorhandenes Makro, benötigt min. -e')		#
+	help='delete existing macro, requires at least -e')		#
 parser.add_argument(
 	'-l', '--listtrigger', action='store_true',
-	help='nach Trigger listen')								#
+	help='list by trigger')								#
 #parser.add_argument(
 #	'--defrag', action='store_true',
-#	help='Macro Liste aufräumen')			
+#	help='clean up macro list')			
 parser.add_argument(
 	'-e', '--existtrigger', type=str,
-	help='Trigger der bearbeitet werden soll')				#
+	help='trigger to be edited')				#
 parser.add_argument(
 	'-t', '--newtrigger', type=str,
-	help='neuer Trigger')									#
+	help='new trigger')									#
 parser.add_argument(
 	'-c', '--category', type=str,
-	help='neue Kategorie')			
+	help='new category')			
 parser.add_argument(
 	'-m', '--comment', type=str,
-	help='neuer Kommentar')									#
+	help='new comment')									#
 parser.add_argument(
 	'-g', '--terminalcommand', type=str,
-	help='neuer Terminalkommando')							#		
+	help='new terminal command')							#		
 parser.add_argument(
 	'-i', '--interncommand', type=str,
-	help='neuer internes Kommando')							#		
+	help='new internal command')							#		
 parser.add_argument(
 	'-b', '--feedback', type=str,
-	help='neuer Feedback tts')
+	help='new TTS feedback')
 args = parser.parse_args()
+
 
 inhalt=[]
 

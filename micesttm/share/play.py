@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Audio-Player mit Tonhöhen-, Tempo- und Lautstärke-Kontrolle
-# Liest und speichert Voreinstellungen in ~/.config/micesttm/micesttm.ini
+# Audio player with pitch, tempo, and volume control
+# Reads and saves presets in ~/.config/micesttm/micesttm.ini
 
 # Argument 2 Tempo
 
@@ -16,7 +16,7 @@ import sys
 import os
 import configparser
 
-# --- micesttm.ini laden ---
+# --- Load micesttm.ini ---
 home_directory = os.path.expanduser("~")
 config_dir = os.path.join(home_directory, ".config", "micesttm")
 config_file_path = os.path.join(config_dir, "micesttm.ini")
@@ -24,7 +24,7 @@ config_file_path = os.path.join(config_dir, "micesttm.ini")
 config = configparser.ConfigParser()
 config.read(config_file_path)
 
-# --- Standardwerte ---
+# --- Default values ---
 notSave=1
 
 try:
@@ -34,16 +34,16 @@ except:
 volume = float(config.get("tts", "volume", fallback="1.0"))
 pitch_shift = float(config.get("tts", "pitch", fallback="0.0"))
 
-# --- GStreamer initialisieren ---
+# --- Initialize GStreamer ---
 Gst.init(None)
 eos_event = threading.Event()
 
 
-# --- GStreamer-Player-Klasse ---
+# --- GStreamer Player Class ---
 class GstPlayer:
 	def __init__(self, filepath):
 		if not os.path.isfile(filepath):
-			print(f"Fehler: Datei nicht gefunden: {filepath}")
+			print(f"Error: File not found: {filepath}")
 			sys.exit(1)
 
 		self.filepath = filepath
@@ -86,7 +86,7 @@ class GstPlayer:
 			self.stop()
 		elif t == Gst.MessageType.ERROR:
 			err, debug = message.parse_error()
-			print("GStreamer Fehler:", err, debug)
+			print("GStreamer Error:", err, debug)
 			eos_event.set()
 			self.stop()
 
@@ -139,7 +139,7 @@ def gst_main_loop():
 	loop.run()
 
 
-# --- Hilfsfunktion: INI speichern ---
+# --- Helper function: Save INI ---
 def save_to_ini(speed, volume, pitch_shift):
 	global notSave
 	os.makedirs(config_dir, exist_ok=True)
@@ -175,12 +175,12 @@ def run_player(stdscr, filepath):
 		dur_s = dur_ns / 1e9 if dur_ns != Gst.CLOCK_TIME_NONE else 0
 
 		stdscr.clear()
-		stdscr.addstr(0, 0, f"Datei: {filepath}")
+		stdscr.addstr(0, 0, f"File: {filepath}")
 		stdscr.addstr(1, 0, f"Position: {pos_s:.1f}s / {dur_s:.1f}s")
-		stdscr.addstr(2, 0, f"Geschwindigkeit: {speed:.2f}x")
-		stdscr.addstr(3, 0, f"Lautstärke: {int(volume * 100)}%")
-		stdscr.addstr(4, 0, f"Tonhöhe: {pitch_shift:+.1f} Halbton")
-		stdscr.addstr(6, 0, "←/→  5s vor/zurück | +/- Tempo | ↑/↓ Lautstärke | o/p Tonhöhe | Leertaste Pause | q Beenden")
+		stdscr.addstr(2, 0, f"Speed: {speed:.2f}x")
+		stdscr.addstr(3, 0, f"Volume: {int(volume * 100)}%")
+		stdscr.addstr(4, 0, f"Pitch: {pitch_shift:+.1f} semitone")
+		stdscr.addstr(6, 0, "←/→  5s forward/back | +/- Tempo | ↑/↓ Volume | o/p Pitch | Space Pause | q Quit")
 
 		if eos_event.is_set():
 			break
@@ -226,7 +226,7 @@ def run_player(stdscr, filepath):
 	save_to_ini(speed, volume, pitch_shift)
 
 
-# --- Einstiegspunkt ---
+# --- Entry point ---
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		print("Usage: python3 player.py <audiofile>")

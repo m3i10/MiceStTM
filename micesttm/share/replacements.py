@@ -16,5 +16,5 @@ tts = {
 'z.B.': 'zum Beispiel',
 '/': 'Schrägstrich',
 '.py': 'punkt pei',
-'Dr.': 'Doktor'	
+'Dr.': 'Doktor'
 }

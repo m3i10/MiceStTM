@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
 
-# Version 28032026
+# Version Nov'26
 # written by m3i10
-# dieses Programm und die dazugehörigen my_watchdogs dürfen verbreitet und verändert werden.
-# bei Veränderung aber stets zum Original Hinweisen und Namentlich erwähnen.
-# siehe https://github.com/oliverguhr/deepmultilingualpunctuation für die automatische Punkt und Komma Setzung
 
-#Lizenzvereinbarung
+# this program and the associated my_watchdogs may be distributed and modified.
+# however, when making modifications, always refer to the original and mention it by name.
+# see https://github.com/oliverguhr/deepmultilingualpunctuation for automatic period and comma placement
 
-#Dieses Programm und die dazugehörigen my_watchdogs dürfen verbreitet und verändert werden. Bei jeder Art von Veränderung sind die folgenden Bedingungen zu beachten:
+#License Agreement
 
-#    Urhebernennung: Bei jeglicher Veränderung des Originals muss auf das Originalprogramm verwiesen und der Name des ursprünglichen Autors genannt werden.
+#This program and the associated my_watchdogs may be distributed and modified. For any kind of modification, the following conditions must be observed:
 
-#    Verbreitung: Das Programm und seine my_watchdogs dürfen in unveränderter oder veränderter Form veröffentlicht und verteilt werden, solange die oben genannten Bedingungen eingehalten werden.
+#    Attribution: For any modification of the original, reference must be made to the original program and the name of the original author must be mentioned.
 
-#    Haftungsausschluss: Der Autor des Originals übernimmt keine Haftung für etwaige Schäden oder Probleme, die aus der Verwendung dieser Software oder ihrer Modifikationen entstehen.
+#    Distribution: The program and its my_watchdogs may be published and distributed in unmodified or modified form, provided the above conditions are met.
 
-#    Keine zusätzliche Einschränkungen: Es dürfen keine zusätzlichen Einschränkungen auferlegt werden, die die Bedingungen dieser Vereinbarung widersprechen.
+#    Disclaimer: The author of the original assumes no liability for any damages or problems arising from the use of this software or its modifications.
 
-#Diese Bedingungen gelten für alle Versionen des Programms und seiner my_watchdogs.
+#    No Additional Restrictions: No additional restrictions may be imposed that contradict the terms of this agreement.
+
+#These terms apply to all versions of the program and its my_watchdogs.
 
 
 
-# Standard Sprachausgaben auf Festplatte speichern und nicht neu generieren
-# Sprachausgabe nicht auf Festplatte speichern, alle Zahlen und gesprochenen Sätze werden immer neu generiert
-# bzw. im Ram gespeichert und werden beim nächsten booten neu generiert
+# Save standard voice outputs to hard drive and do not regenerate
+# Do not save voice output to hard drive, all numbers and spoken sentences are always regenerated
+# or stored in RAM and will be regenerated on the next boot
 
-#
 
 # ---------------------------------------------------------------------------
 import argparse
@@ -77,31 +77,26 @@ dictation_mode = False
 write_mode = False
 
 #-----------------------------------------------------------------------------------------------
-# eigene Library my_watchdog
+# my Library my_watchdog
 import my_watchdog
-my_watchdog.program_name(os.path.basename(__file__)) # eigenen Dateiname ermitteln und initialisieren
+my_watchdog.program_name(os.path.basename(__file__))
 #-----------------------------------------------------------------------------------------------
 
+uppererr = False
+try:
+# determine the modification date of the upper/lower case database
+# if it is modified during runtime, it will be 
+# reloaded(need for german)
 
-# Rechtschreibung und Punktation
-#try:
-#	from deepmultilingualpunctuation import PunctuationModel
-#	pmodel = PunctuationModel()
-#	punctation = True
-#except:
-#	print("no punctation model found")
-#	punctation = False
+	current_modified_time = os.path.getmtime(upper_word_list_file)
 
-# ermittel das Änderungsdatum der Groß-Klein Schreib Datenbank
-# falls diese während der Laufzeit geändert wird, wird diese neu 
-# eingelesen
-current_modified_time = os.path.getmtime(upper_word_list_file)
 
-# Groß Klein Schreib Datenbank einladen.
-# diese wird nur für den Diktiermodus benötigt
-# vosk Spracherkennung kann nur Kleinschreibung
-with open(upper_word_list_file, 'r', encoding='utf-8') as input_file:
-	words = {line.strip().lower() for line in input_file if line.strip()}
+	with open(upper_word_list_file, 'r', encoding='utf-8') as input_file:
+		words = {line.strip().lower() for line in input_file if line.strip()}
+		
+except:
+	print(f"Error: File '{upper_word_list_file}' not Found!(for German only)")
+	uppererr = True
 
 
 def replace_with_uppercase(match):
@@ -113,27 +108,26 @@ def replace_with_uppercase(match):
 	except:
 		pass
 		
-# Großschreiben nach jedem Satzzeichen nur Diktiermodus
-def punctuation(text): # Function mit KI Unterstützung geschrieben
-	#text = pmodel.restore_punctuation(text) # eigene Datenbank wird jetzt genutzt, wesentlich schneller als KI
+# capitalize after every punctuation mark dictation mode only
+def punctuation(text):
 	try:
-		sentences = re.split(r'([.!?])', text)  # Splitte den Text nach Satzzeichen
+		sentences = re.split(r'([.!?])', text)
 		capitalized_sentences = []
 		for i in range(len(sentences)):
-			if i % 2 == 0:  # Textteile (nicht Satzzeichen)
+			if i % 2 == 0:
 				sentence = sentences[i].strip()
-				if sentence:  # Überprüfen, ob der Textteil nicht leer ist
-					# Großschreibe nur den ersten Buchstaben des Satzes
+				if sentence:
+					
 					capitalized_sentence = sentence[0].upper() + sentence[1:] if sentence else ''
 					capitalized_sentences.append(capitalized_sentence)
 				else:
 					capitalized_sentences.append(sentence)
-			else:  # Satzzeichen
+			else:
 				capitalized_sentences.append(sentences[i] + " ")
 		return ''.join(capitalized_sentences).strip()
 	except Exception as e:
-		print(f"Ein Fehler ist aufgetreten: {e}")
-		return text  # Gebe den ursprünglichen Text zurück
+		print(f" An error occurred: {e}")
+		return text
 
 # -------------------------------------------------------------------------------
 
@@ -165,13 +159,11 @@ def parse_macros():
 				continue
 			
 			if line.startswith('trigger:'):
-				# Füge den aktuellen Trigger zur Map hinzu, wenn es schon einen gibt
 				if current_trigger is not None:
 					macros_dict[current_trigger] = current_commands # zur Liste hinzufügen
-				
-				# Extrahiere den Trigger
+	
 				trigger_content = line.split(':', 1)[1].strip()
-				# Trennung nach Leerzeichen, nur den ersten Teil verwenden
+
 				trigger_parts = tuple(trigger_content.split())
 				current_trigger = ', '.join([f'"{part}"' for part in trigger_parts])
 				current_commands = [] # Lieste wieder löschen
@@ -188,9 +180,7 @@ def parse_macros():
 				command_content = line.split(':', 1)[1].strip()
 				current_commands.append(command_content)
 
-		# Füge den letzten Trigger hinzu, wenn vorhanden
 		if current_trigger is not None:
-			# Hier ist die Bedingung gelockert, sodass der Trigger auch ohne Befehle hinzugefügt wird
 			macros_dict[current_trigger] = current_commands
 	except:
 		print('')
@@ -202,29 +192,26 @@ def parse_macros():
 		os.system(tts_player + ' ' + signal + ' &')
 		time.sleep(0.2)
 		os.system(tts_player + ' ' + signal + ' &')
-		os.system("echo Fehler in der Makro Liste! " + macro_file + "! die Zeile!" + errsaytword + " >error.txt")
+		os.system("echo Error in the macro list! " + macro_file + "! in Line" + errsaytword + " >error.txt")
 		print('*****************************')
 		print('')
 	return macros_dict
 	
-def Check_trigger(trigger_words, speechtext): # Funktion mit KI Unterstützung geschrieben
+def Check_trigger(trigger_words, speechtext):
 	try:
 		errsaytword = trigger_words.lower()
 		trigger_words=eval("[" + trigger_words.lower() + "]")
-		# Erzeuge den Regex-Ausdruck dynamisch basierend auf der Liste
+
 		trigger_patterns = ''.join(f'(?=.*\\b({word})\\b)' for word in trigger_words)
 		triggertext = r'^(?=.*\b)(?=.*\b){}'.format(trigger_patterns)
 
-		trigger_words = str(trigger_words).translate(str.maketrans("", "", "[]'().*,"))  # Entfernt die angegebenen Zeichen		trigger_words = trigger_words.replace("|", " ")
+		trigger_words = str(trigger_words).translate(str.maketrans("", "", "[]'().*,"))
 		trigger_words = trigger_words.replace("|", " ")
 
-		# Überprüfen, ob die Trigger-Wörter in speechtext vorhanden sind
 		if re.search(triggertext, speechtext.lower()):
-			# Finde die Position des letzten Trigger-Wortes
 			max_pos = max((speechtext.lower().find(word) for word in trigger_words.split() if speechtext.lower().find(word) >= 0), default=0)
 			
 			last_trigger_pos = max_pos
-			# Den restlichen Text nach dem letzten Trigger-Wort extrahieren
 			
 			return speechtext[last_trigger_pos + len(speechtext[last_trigger_pos:].split()[0]):].strip()
 		else:
@@ -240,7 +227,7 @@ def Check_trigger(trigger_words, speechtext): # Funktion mit KI Unterstützung g
 		print(tts_player + ' ' + signal + ' &')
 		time.sleep(0.2)
 		os.system(tts_player + ' ' + signal + ' &')
-		os.system("echo Fehler in der Makro Liste! " + macro_file + "! die Zeile!" + errsaytword + " >error.txt")
+		os.system("echo Error in the macro list! " + macro_file + "! in Line" + errsaytword + " >error.txt")
 		print('*****************************')
 		print('')
 	return "none"
@@ -262,18 +249,15 @@ def speech_replace(speechtext):
 	try:
 		with open(speech_replace_file, 'r', encoding='utf-8') as datei:
 			for zeile in datei:
-				zeile = zeile.strip()  # Entferne führende und nachfolgende Leerzeichen
+				zeile = zeile.strip()
 				um = zeile.split('(->)')
 				if um[0].find('#') != 0 and um[0] != '':
-					if len(um) > 1:  # Überprüfe, ob es mehr als ein Element gibt
+					if len(um) > 1:
 						speechtext = " " + speechtext + " "
 						if "{delspace}" in speechtext:
 							speechtext = speechtext.replace(" " + um[0] + " ", um[1])
-						#speechtext = speechtext.replace(um[0] + " ", " " + um[1])
-						#speechtext = speechtext.replace(" " + um[0], um[1] + " ")
 						else:
 							speechtext = speechtext.replace(" " + um[0] + " ", " " + um[1] + " ")
-						# Doppelte Leerzeichen entfernen
 						speechtext = ' '.join(speechtext.split())
 
 				speechtext = speechtext.replace('{space}', ' ')
@@ -287,21 +271,20 @@ def speech_replace(speechtext):
 		print("speech replace:")
 		print(speechtext)
 		return speechtext
-	except Exception as e:  # Fange spezifische Ausnahmen
-		print(f"Ein Fehler ist aufgetreten: {e}")
+	except Exception as e:
+		print(f"An error occurred: {e}")
 
 def calculate_string(input_string):
 
 	for i in range(1,10):
-		input_string = re.sub(r'(\d+)\s*\.\s*(\d+)\s*(\d+)?', lambda m: f"{m.group(1)}.{m.group(2)}{m.group(3) if m.group(3) else ''}", input_string) # KI U
+		input_string = re.sub(r'(\d+)\s*\.\s*(\d+)\s*(\d+)?', lambda m: f"{m.group(1)}.{m.group(2)}{m.group(3) if m.group(3) else ''}", input_string)
 	
-	# Entferne Leerzeichen zwischen Ziffern
-	input_string = re.sub(r'(\d+)\s+', r'\1 ', input_string)  # Ziffern vor Leerzeichen # KI Z.
-	input_string = re.sub(r'\s+(\d+)', r' \1', input_string)  # Ziffern nach Leerzeichen # KI U.
+	# Remove spaces between digits
+	input_string = re.sub(r'(\d+)\s+', r'\1 ', input_string)
+	input_string = re.sub(r'\s+(\d+)', r' \1', input_string)
 	
-	# Ersetze Leerzeichen zwischen Ziffern und Operatoren
-	input_string = re.sub(r'\s*([\+\-\*/])\s*', r' \1 ', input_string)  # Operatoren KI U.
-	# 
+	input_string = re.sub(r'\s*([\+\-\*/])\s*', r' \1 ', input_string)
+	
 	if input_string.find('*')>0:
 		input_string = '(' + input_string + ')'
 	if input_string.find('+')>0:
@@ -321,7 +304,7 @@ def calculate_string(input_string):
 	input_string = input_string.replace('1000', ')*1000')
 	if input_string.find('1000')>0:
 		input_string = '(' + input_string
-	input_string = re.sub(r'\s+', ' ', input_string).strip() # doppelte leerzeichen entfernen
+	input_string = re.sub(r'\s+', ' ', input_string).strip()
 	input_string = input_string.replace(' 100', '*100 ')
 	input_string = input_string.replace('1000*100', '1000+100')  
 	input_string = input_string.replace(' ', '+')
@@ -344,14 +327,13 @@ def load_macro(speechtext):
 	global macro_path
 	triggertext=""
 
-	sh = parse_macros() # Makro Datei auslesen und in sh übergeben
+	sh = parse_macros()
 
 	for triggertext in list(sh):
 		last_spoken_number = "1"
 		last_spoken_text = ""
 		try:		
 			last_spoken_text = Check_trigger(triggertext, speechtext)
-			# vor komma frage zeichen usw. leerstelle entfernen, wichtig bei der Diktierfunktion
 			for zeichen in ".,;:?(":
 				last_spoken_text = last_spoken_text.replace(' ' + zeichen, zeichen)
 			
@@ -366,7 +348,6 @@ def load_macro(speechtext):
 			intern_command = sh[triggertext][1]
 			tts = sh[triggertext][2]
 			
-			# schauen, ob eine andere datei als macro genutzt werden soll
 			intern_command_list = 'repeat calc spell puncture'
 			find_cmd = 0
 			for cmd_list in intern_command_list.split():
@@ -377,26 +358,25 @@ def load_macro(speechtext):
 				macro_file = macro_path + '/' +  intern_command
 				dictation_mode = True
 			
-			if macro_file == main_macro_file: 	# deaktiviere mit wakeword
+			if macro_file == main_macro_file:
 				dictation_mode = False
 			change_numbers=False
 			
-			if intern_command.find("write") >= 0: 	# im Dateinamen write bedeutet dauerhaft schreiben können
-				write_mode = True					# deaktivieren mit wakeword
+			if intern_command.find("write") >= 0:
+				write_mode = True
 				
 			if intern_command.find("spell") >= 0:
-				last_spoken_text = last_spoken_text.replace(' ', '') # spell remove space
+				last_spoken_text = last_spoken_text.replace(' ', '')
 
 			print(last_spoken_text)
 			print("dictation_mode: " + str(dictation_mode))
 			print("write_mode: " + str(write_mode)	)
 			#----------------------------------------------------------------
 			
-			#baustelle
 			placeholders = ['{last_spoken_number}', '{last_spoken_numeral}', '{last_spoken_text}', 'repeat']
 			if any(placeholder in tts or placeholder in terminal_command or intern_command for placeholder in placeholders):
 				change_numbers=True
-				speechtext = number_replace(speechtext) # geschr. zahlen werden in zahlen
+				speechtext = number_replace(speechtext)
 				print("numberreplcae")
 
 				try:
@@ -404,28 +384,25 @@ def load_macro(speechtext):
 					last_spoken_numeral = re.sub(r'[a-zA-ZüöäÜÖÄß ]', '', speechtext).strip('+').strip('*')
 
 					last_spoken_number = str(calculate_string(last_spoken_number))
-					if intern_command.find('calc') >=0:
-						last_spoken_number = last_spoken_number.replace(".", ",")
+					last_spoken_number = number_replace(last_spoken_number)
+					#if intern_command.find('calc') >=0: #need for german
+					#	last_spoken_number = last_spoken_number.replace(".", ",")
 				except:
 					pass
 			try:
-				# Wörter umwandeln
 				last_spoken_text = speech_replace(last_spoken_text)
-				if intern_command.find("puncture") >= 0: # Groß Kleinschreibung aktivieren
-				# erstmal die Punktation
+				if intern_command.find("puncture") >= 0:
+				
 					if last_spoken_text.find("{nopuncture}") == -1 and len(last_spoken_text) > 3:
-						last_spoken_text = punctuation(last_spoken_text)  # Großschreibung nach Satzzeichen
-						last_spoken_text = speech_replace(last_spoken_text) # nach der Punktation nochmal umwandeln z.B. für www.google.com
+						last_spoken_text = punctuation(last_spoken_text)
+						last_spoken_text = speech_replace(last_spoken_text)
 
-				# wenn der Text übergeben werden soll
 				tts = tts.replace('{last_spoken_text}', last_spoken_text)
 				terminal_command = terminal_command.replace('{last_spoken_text}', last_spoken_text)
-				
-				# wenn die Zahl übergeben werden soll um Werte zu ändern				
+								
 				tts = tts.replace('{last_spoken_number}', last_spoken_number)
 				terminal_command = terminal_command.replace('{last_spoken_number}', last_spoken_number)
 			
-				# einzelne Ziffern ändern
 				tts = tts.replace('{last_spoken_numeral}', last_spoken_numeral)
 				terminal_command = terminal_command.replace('{last_spoken_numeral}', last_spoken_numeral)
 			except:
@@ -464,7 +441,7 @@ def load_macro(speechtext):
 						say.cache(tts)
 
 			print()
-			print("Variable:")
+			print("Var:")
 			print(last_spoken_text)
 			print(last_spoken_number)
 			print(str(dictation_mode) + ' ' + macro_file)
@@ -472,12 +449,10 @@ def load_macro(speechtext):
 				time.sleep(2)
 			return True
 	
-	# wenn kein Befehl erkannt wurde und der Schreibmodus ist eingeschaltet
-	# so wird er alles schreiben was er hört
 	if write_mode == True:
 		if speechtext.find("{nopuncture}") == -1 and len(speechtext) > 3:
 				speechtext = speech_replace(speechtext)
-				speechtext = punctuation(speechtext)  # Großschreibung nach Satzzeichen
+				speechtext = punctuation(speechtext)
 		speechtext = speechtext.replace("{nopuncture}", "")
 		writekey(speech_replace(speechtext))
 		return True
@@ -493,8 +468,6 @@ def int_or_str(text):
 
 def callback(indata, frames, time, status):
 	"""This is called (from a separate thread) for each audio block."""
-	#if status:
-		#print(status, file=sys.stderr)
 	q.put(bytes(indata))
 
 
@@ -505,7 +478,9 @@ def speech_conversion(message):
 	global listening
 	
 	speech_text = message
-	speech_text = re.sub(r'\b(\w+)\b', replace_with_uppercase, speech_text)
+#	if uppererr==False:
+#		speech_text = re.sub(r'\b(\w+)\b', replace_with_uppercase, speech_text)
+		
 
 	if load_macro(speech_text)==True:
 		ready_to_recive=False
@@ -584,11 +559,9 @@ try:
 			
 			while True:
 				data = q.get()
-				 
-				# Berechnen der Lautstärke wieder entfernt. Dies sollte zunächst reagieren um nicht ständig
-				# auf Bereitschaft zu sein. Hatte keine Vorteile
 				
-				# falls die Großschreibdatenbank ergänzt wurde, wird diese neu geladen
+				# if the capitalization database has been updated, it will be reloaded(only German)
+				
 				#current_modified_time_last = os.path.getmtime(upper_word_list_file)
 				#if current_modified_time_last != current_modified_time:
 					#with open(upper_word_list_file, 'r', encoding='utf-8') as input_file:
@@ -596,12 +569,16 @@ try:
 					#current_modified_time = os.path.getmtime(upper_word_list_file) # änderungsdatum erkennen
 				
 				
-				# wird kein trigger erkannt hat man ca 10-15 Sek. Zeit sich zu wiederholen 30/2	
-				if time.time() - wait_window and ready_to_recive == True> 10:
+				# If no trigger is detected, you have about 10–15 seconds to repeat yourself 30/2
+				if time.time() - wait_window>10 and ready_to_recive == True:
 					ready_to_recive = False
 					wait_window = time.time()
 					listening = False
 					os.system(unmuteSpeaker)
+				
+				#if ready_to_recive==True:
+				#	print(time.time() - wait_window)
+				#	print("i am here say a command")
 				
 				
 				# Dictationmode
@@ -609,7 +586,7 @@ try:
 					ready_to_recive = True
 				# -------------
 				
-				# RAM Remote; diktiermodus über diese datei einschalten/genutzt für den Makroeditor
+				# RAM Remote; # Enable dictation mode via this file / used for the macro editor
 				#if os.path.exists("/dev/shm/micesttm-dictationmode"):
 				#	macro_file_bak = macro_file
 					
@@ -635,32 +612,34 @@ try:
 					
 						
 					if ready_to_recive == True and speech_text != '':
-						speech_conversion(speech_text) #Groß Kleinschr. wird auch bearbeitet
-						for i in range(1, 11): # Reset der Mikroeingabe
+						speech_conversion(speech_text) # Capitalization is also processed
+
+						for i in range(1, 11): # Reset the microphone input buffer
 							time.sleep(.1)
 							data = q.get()
 
 
 				else:
 					message = json.loads(rec.PartialResult())["partial"] # + " "
-					if message == 'nun':
-						message = ''
-						rec.Reset()
+					#if message == 'nun': # germnal sst filter if no signal
+				#		message = ''
+			    #		rec.Reset()
 						
 					if old_message != message:
 						if len(message) >=1:
 							print(message)
 							
-						speech_wait_time = time.time() #ein warte Fenster erstellen, da oft zu lange gewartet wird
+						speech_wait_time = time.time() #Create a wait window, as the wait time is often too long
 						
 					old_message = message
 					
-					# Wake Word wird erkannt
+					# Wake Word 
 					if message.lower().find(args.wakeword)>=0:
-						macro_file = main_macro_file		# zurück zur Hauptmakrofile, und Diktiermodus beenden
+						print("Wake Word " + args.wakeword)
+						macro_file = main_macro_file
 						dictation_mode = False
 						write_mode = False
-						os.system(unmuteSpeaker)
+						#os.system(unmuteSpeaker)
 						os.system(tts_player + ' ' + signal)
 						time.sleep(0.5)
 						os.system(muteSpeaker)
@@ -669,8 +648,9 @@ try:
 						speech_wait_time = time.time()
 						rec.Reset()
 						
-					# wenn re.AcceptWaveform nicht greift, was häufig passiert, dann greift die folgende
-					# man hört auf zu sprechen und nach ca. 1,5 sek wird das Kommando ausgeführt
+					# if re.AcceptWaveform does not trigger, which happens frequently, the following takes effect
+					# you stop speaking and after about 1.5 sec the command is executed
+
 					
 					if (time.time() - speech_wait_time > 2) and (ready_to_recive == True) and message != '':
 						speech_conversion(message)
@@ -683,8 +663,9 @@ try:
 				if dump_fn is not None:
 					dump_fn.write(data)
 			
-				if my_watchdog.check_twice_started():	# wenn das Programm ein 2. Mal gestartet wird, werden alle beendet
+				if my_watchdog.check_twice_started():	# if the program is started a 2nd time, all instances are terminated
 					time.sleep(4)
+					print("Speech recognition is being terminated!")
 					print('\nDone')
 					parser.exit(0)
 					parser.exit(type(e).__name__ + ': ' + str(e))
